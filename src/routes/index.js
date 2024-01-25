@@ -1,0 +1,88 @@
+
+/* eslint-disable no-unused-vars */
+
+import React, { Fragment } from 'react';
+
+import {
+  BrowserRouter,
+  Routes,
+  Route
+} from 'react-router-dom';
+
+import AdminUnauthLayout from '../layouts/admin-unauth-layout';
+import AdminAuthLayout from '../layouts/admin-auth-layout';
+
+import CheckAuth from './check-auth';
+import LoginPage from '../pages/login';
+import DashboardPage from '../pages/admin/dashboard';
+import TicketsPage from '../pages/admin/tickets';
+import ErrorPage from '../pages/error-page';
+
+const AppRoutes = () => {
+  const ADMIN_UNAUTH_ROUTES = [
+    {
+      path: '/',
+      page: <LoginPage/>
+    },
+    {
+      path: '/login',
+      page: <LoginPage/>
+    }
+  ];
+
+  const ADMIN_AUTH_ROUTES = [
+    {
+      path: '/admin',
+      page: <DashboardPage/>
+    },
+    {
+      path: '/tickets',
+      page: <TicketsPage/>
+    }
+  ];
+
+  return <>
+    <BrowserRouter>
+      <Routes>
+        {ADMIN_UNAUTH_ROUTES.map((route, key) => (
+          <Fragment key={key}>
+            <Route
+              key={key}
+              path={route.path}
+              element={
+                <CheckAuth>
+                  <AdminUnauthLayout>
+                    {route.page}
+                  </AdminUnauthLayout>
+                </CheckAuth>
+              }
+            />
+          </Fragment>
+        ))}
+
+        {ADMIN_AUTH_ROUTES.map((route, key) => (
+          <Fragment key={key}>
+            <Route
+              key={key}
+              path={route.path}
+              element={
+                <CheckAuth>
+                  <AdminAuthLayout>
+                    {route.page}
+                  </AdminAuthLayout>
+                </CheckAuth>
+              }
+            />
+          </Fragment>
+        ))}
+
+        <Route
+          path='*'
+          element={<ErrorPage/>}
+        />
+      </Routes>
+    </BrowserRouter>
+  </>;
+};
+
+export default AppRoutes;
