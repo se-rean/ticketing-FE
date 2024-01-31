@@ -19,10 +19,9 @@ import FormErrorBanner from '../components/form-error-banner';
 
 const stateSelectors = createSelector(
   state => state.login,
-  state => state.table,
   (login) => ({
     loading: login.loading,
-    is_success: login.is_success,
+    isSuccess: login.isSuccess,
     message: login.message
   })
 );
@@ -33,7 +32,7 @@ const LoginPage = () => {
   const {
     loading,
     message,
-    is_success: isSuccess
+    isSuccess
   } = useSelector(stateSelectors);
 
   const {
@@ -44,7 +43,7 @@ const LoginPage = () => {
 
 
   const onSubmit = (data) => {
-    dispatch(loginAction({ payload: data }));
+    dispatch(loginAction(data));
   };
 
   return <>

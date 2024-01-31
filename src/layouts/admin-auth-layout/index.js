@@ -16,8 +16,9 @@ const MainLayout = ({ children }) => {
 
   const StyledRoot = styled('div')({
     display: 'flex',
-    minHeight: '100%',
-    overflow: 'hidden'
+    minHeight: '100vh',
+    overflow: 'hidden',
+    backgroundColor: 'whitesmoke'
   });
 
   const Main = styled('div')(({ theme }) => ({

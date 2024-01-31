@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { getUser } from '../../../utils';
 import navItems from '../nav-items';
 import {
   Box,
@@ -17,11 +16,6 @@ import useResponsive from '../../../hooks/use-responsive';
 
 const RenderContent = () => {
   const navigate = useNavigate();
-
-  // const {
-  //   fullName,
-  //   role
-  // } = getUser();
 
   return <>
     <Box>

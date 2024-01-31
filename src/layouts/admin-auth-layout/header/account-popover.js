@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
-import { getUser } from '../../../utils';
+import { getUser } from '../../../helpers';
 import { useNavigate } from 'react-router-dom';
 
 import { alpha } from '@mui/material/styles';

@@ -9,6 +9,7 @@ import axiosMiddleware from 'redux-axios-middleware';
 import rootReducer from './reducers';
 import rootSaga from './sagas';
 import axios from 'axios';
+import { setAuthTokenExpired } from './actions';
 
 const sagaMiddleware = createSagaMiddleware();
 const authToken = sessionStorage.getItem('token');
@@ -31,33 +32,25 @@ const axiosMiddlewareOptions = {
     ],
     response: [{
       success: ({ dispatch }, response) => {
-        const { config: { method }, data } = response;
-
-        // if (method === 'post' && data.message) {
-        //   toastSuccess(data.message);
-        // }
-
-        // dispatch(setLoadingAction(false));
-
         return response;
       },
       error: async ({ dispatch, getSourceAction, getState }, error) => {
         const {
           response: {
-            status,
-            data
+            data: {
+              is_success: isSuccess,
+              status_code: statusCode,
+              message
+            }
           }
         } = error;
 
-        // if (status !== 200) {
-        //   if (status === 422) {
-        //     dispatch(setPayloadErrorsAction(data.payloadErrors));
-        //   } else {
-        //     toastError(data.message);
-        //   }
-        // }
-
-        // dispatch(setLoadingAction(false));
+        if (!isSuccess && statusCode === 403) {
+          dispatch(setAuthTokenExpired({
+            isTokenExpired: true,
+            message
+          }));
+        }
 
         return Promise.reject(error);
       }
