@@ -214,7 +214,7 @@ const Table = ({
                   </TableContainer>
 
                   <TablePagination
-                    rowsPerPageOptions={[5, 10, 15, 20, 25, 50]}
+                    rowsPerPageOptions={[100, 500, 1000, 2000, 3000]}
                     component="div"
                     count={rows.length}
                     rowsPerPage={pageSize}
