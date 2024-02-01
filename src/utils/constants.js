@@ -27,6 +27,6 @@ export const TICKETING_TABLE_HEADERS = [
   {
     rowId: 'barcode',
     label: 'Barcode',
-    type: 'image'
+    type: 'qrcode'
   }
 ];

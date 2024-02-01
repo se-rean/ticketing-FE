@@ -10,7 +10,8 @@ import {
   GET_PERFORMANCE_DETAILS,
   SET_PERFORMANCE_DETAILS,
   SET_AUTH_TOKEN_EXPIRED,
-  CREATE_PARTICIPANTS
+  CREATE_PARTICIPANTS,
+  CREATE_PARTICIPANTS_BARCODE
 } from '../action-types';
 
 export const loginAction = (payload) => ({
@@ -89,13 +90,27 @@ export const setAuthTokenExpired = (payload) => ({
   payload
 });
 
-export const createParticipantAction = (payload) => ({
+export const createParticipantsAction = (payload) => ({
   types: setTypes(CREATE_PARTICIPANTS),
   payload: {
     request: {
       method: 'POST',
       url: 'v1/Ticketing/create-participants',
       data: { participants: payload }
+    }
+  }
+});
+
+export const createParticipantsBarcodeAction = (payload) => ({
+  types: setTypes(CREATE_PARTICIPANTS_BARCODE),
+  payload: {
+    request: {
+      method: 'POST',
+      url: 'v1/Ticketing/create-barcode',
+      data: {
+        ...payload,
+        limit: 1000000
+      }
     }
   }
 });

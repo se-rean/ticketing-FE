@@ -24,6 +24,12 @@ const axiosMiddlewareOptions = {
   interceptors: {
     request: [
       ({ getState }, config) => {
+        const isTokenExpired = getState().auth.isTokenExpired;
+
+        if (isTokenExpired) {
+          throw new Error('Token expired');
+        }
+
         return {
           ...config,
           headers: { ...config.headers }

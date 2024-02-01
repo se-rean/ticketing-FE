@@ -30,7 +30,7 @@ import { CloudUpload } from '@mui/icons-material';
 import Loading from '../../../components/loading';
 import InputSelect from '../../../components/input-select';
 import Button from '../../../components/button';
-import { createParticipantAction } from '../../../redux-saga/actions';
+import { createParticipantsAction } from '../../../redux-saga/actions';
 
 const stateSelectors = createSelector(
   state => state.ticket,
@@ -104,7 +104,7 @@ const PerformanceDetailsForm = ({ handleNextStep }) => {
           return newItems;
         });
 
-        dispatch(createParticipantAction(payload));
+        dispatch(createParticipantsAction(payload));
       })
       .catch((error) => {
         toastError(error);

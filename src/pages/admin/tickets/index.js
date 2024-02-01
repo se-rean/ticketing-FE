@@ -10,11 +10,12 @@ import {
 } from '@mui/material';
 import CreateEventForm from './create-event-form';
 import PerformanceDetailsForm from './performance-details-form';
+import ParticipantsForm from './participants-form';
 
 const TicketsPage = () => {
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(2);
 
-  const STEPS = ['Create Event', 'Details & Generate', 'Confirmation'];
+  const STEPS = ['Create Event', 'Details & Generate', 'Participants'];
 
   const STEP_1 = 0;
   const STEP_2 = 1;
@@ -31,7 +32,7 @@ const TicketsPage = () => {
       case STEP_2:
         return <PerformanceDetailsForm {...{ handleNextStep }}/>;
       case STEP_3:
-        return <>ON DEVELOPMENT</>;
+        return <ParticipantsForm/>;
       default:
         return <CreateEventForm {...{ handleNextStep }}/>;
     }

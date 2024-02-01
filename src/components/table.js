@@ -4,6 +4,7 @@ import {
   useSelector
 } from 'react-redux';
 import { createSelector } from 'reselect';
+import QRCode from 'react-qr-code';
 
 import {
   Table as MUITable,
@@ -15,7 +16,8 @@ import {
   TableCell,
   Checkbox,
   Box,
-  Paper
+  Paper,
+  Toolbar
 } from '@mui/material';
 import {
   setTablePageAction,
@@ -77,6 +79,10 @@ const RenderTableHead = ({
 const RenderRows = ({ row, header }) => {
   if (!row[header.rowId]) {
     return '--';
+  } else if (header.type === 'qrcode') {
+    return <>
+      <QRCode size={50} value={row[header.rowId]}/>
+    </>;
   }
 
   return row[header.rowId];
@@ -85,6 +91,7 @@ const RenderRows = ({ row, header }) => {
 const Table = ({
   headers,
   rows = [],
+  headerActions = null,
   loading = false
 }) => {
   const dispatch = useDispatch();
@@ -145,10 +152,21 @@ const Table = ({
             {rows.length > 0
               ? (
                 <>
+                  {headerActions && (
+                    <>
+                      <Toolbar sx={{
+                        display: 'flex', justifyContent: 'end'
+                      }}>
+                        {headerActions}
+                      </Toolbar>
+                    </>
+                  )}
+
                   <TableContainer>
                     <MUITable
                       size='small'
                       stickyHeader
+                      dense
                     >
                       <RenderTableHead {...{
                         headers,
