@@ -9,6 +9,7 @@ import {
   createParticipantsBarcodeAction, getParticipantsAction
 } from '../../../redux-saga/actions';
 import { TICKETING_TABLE_HEADERS } from '../../../utils/constants';
+import { exportToCSV } from '../../../helpers';
 
 import {
   Grid, IconButton, Tooltip
@@ -43,9 +44,11 @@ const ParticipantsForm = () => {
     pageSize
   } = useSelector(stateSelectors);
 
+  const performanceCode = sessionStorage.getItem('performanceCode');
+
   useEffect(() => {
     dispatch(getParticipantsAction({
-      performanceCode: 'PDUB01DEC2023B', // sessionStorage.getItem('performanceCode')
+      performanceCode: 'PDUB01DEC2023B', // performanceCode
       page: page + 1,
       pageSize
     }));
@@ -54,10 +57,34 @@ const ParticipantsForm = () => {
   const handleGenerateBarcode = () => {
     const payload = {
       participantsIds: [],
-      performanceCode: 'PDUB01DEC2023B' // sessionStorage.getItem('performanceCode')
+      performanceCode: 'PDUB01DEC2023B' // performanceCode
     };
 
     dispatch(createParticipantsBarcodeAction(payload));
+  };
+
+  const handleDownloadParticipants = () => {
+    const payload = {
+      performanceCode: 'PDUB01DEC2023B', // performanceCode
+      page: 1,
+      pageSize: 1000000
+    };
+
+    dispatch(getParticipantsAction(payload))
+      .then(({ payload: { data: { data: result } } }) => {
+        const { performanceCode } = payload;
+
+        const mappedResult = result.map(i => ({
+          Name: `${i.firstname} ${i.lastname}`,
+          Nationality: i.nationality,
+          Type: i.pricetype_code,
+          ['Perfomance Code']: i.performance_code,
+          Price: i.total_amount,
+          Barcode: i.barcode
+        }));
+
+        exportToCSV(mappedResult, performanceCode);
+      });
   };
 
   return <>
@@ -81,7 +108,7 @@ const ParticipantsForm = () => {
               </Tooltip>
 
               <Tooltip title='Download Participants'>
-                <IconButton>
+                <IconButton onClick={() => handleDownloadParticipants()}>
                   <Download/>
                 </IconButton>
               </Tooltip>

@@ -1,6 +1,6 @@
 export const TICKETING_TABLE_HEADERS = [
   {
-    rowId: 'firstname',
+    rowId: 'fullName',
     label: 'Name',
     type: 'text'
   },

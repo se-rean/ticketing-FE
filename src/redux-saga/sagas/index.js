@@ -53,7 +53,12 @@ function* watchGetParticipantsSuccess() {
     const { is_success: isSuccess, data } = response;
 
     if (isSuccess) {
-      yield put(setParticipantsDataAction(data));
+      const mappedData = data.map(i => ({
+        ...i,
+        fullName: `${i.firstname} ${i.lastname}`
+      }));
+
+      yield put(setParticipantsDataAction(mappedData));
     }
   });
 }
