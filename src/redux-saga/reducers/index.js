@@ -55,7 +55,7 @@ const login = (state = {
 const table = (state = {
   selectedIds: [],
   page: 0,
-  pageSize: 10
+  pageSize: 100
 }, action) => {
   switch(action.type) {
     case SET_TABLE_SELECTED_ROWS:
