@@ -37,8 +37,7 @@ const stateSelectors = createSelector(
   (ticket) => ({
     performanceDetails: ticket.performanceDetails,
     loading: ticket.loading,
-    generateParticipantLoading: ticket.generateParticipantLoading,
-    isSuccess: ticket.createParticipantsSuccess
+    generateParticipantLoading: ticket.generateParticipantLoading
   })
 );
 
@@ -49,8 +48,7 @@ const PerformanceDetailsForm = ({ handleNextStep }) => {
   const {
     loading,
     generateParticipantLoading,
-    performanceDetails,
-    isSuccess
+    performanceDetails
   } = useSelector(stateSelectors);
 
   const {
@@ -104,7 +102,11 @@ const PerformanceDetailsForm = ({ handleNextStep }) => {
           return newItems;
         });
 
-        dispatch(createParticipantsAction(payload));
+        dispatch(createParticipantsAction(payload)).then(({ payload: { data: { is_success: isSuccess } } }) => {
+          if (isSuccess) {
+            handleNextStep();
+          }
+        });
       })
       .catch((error) => {
         toastError(error);
@@ -132,12 +134,6 @@ const PerformanceDetailsForm = ({ handleNextStep }) => {
 
     reader.readAsArrayBuffer(file);
   });
-
-  useEffect(() => {
-    if (isSuccess) {
-      handleNextStep();
-    }
-  }, [isSuccess]);
 
   let pricingDetails;
   if (sections && priceTypes && ticketPrices) {

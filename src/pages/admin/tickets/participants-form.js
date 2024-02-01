@@ -15,6 +15,7 @@ import {
   Grid, IconButton, Tooltip
 } from '@mui/material';
 import {
+  Add,
   Download,
   QrCode2,
   Replay
@@ -33,7 +34,7 @@ const stateSelectors = createSelector(
   })
 );
 
-const ParticipantsForm = () => {
+const ParticipantsForm = ({ goToStep1 }) => {
   const dispatch = useDispatch();
 
   const {
@@ -71,19 +72,28 @@ const ParticipantsForm = () => {
     };
 
     dispatch(getParticipantsAction(payload))
-      .then(({ payload: { data: { data: result } } }) => {
-        const { performanceCode } = payload;
+      .then(({
+        payload: {
+          data: {
+            data: result,
+            is_success: isSuccess
+          }
+        }
+      }) => {
+        if (isSuccess) {
+          const { performanceCode } = payload;
 
-        const mappedResult = result.map(i => ({
-          Name: `${i.firstname} ${i.lastname}`,
-          Nationality: i.nationality,
-          Type: i.pricetype_code,
-          ['Perfomance Code']: i.performance_code,
-          Price: i.total_amount,
-          Barcode: i.barcode
-        }));
+          const mappedResult = result.map(i => ({
+            Name: `${i.firstname} ${i.lastname}`,
+            Nationality: i.nationality,
+            Type: i.pricetype_code,
+            ['Perfomance Code']: i.performance_code,
+            Price: i.total_amount,
+            Barcode: i.barcode
+          }));
 
-        exportToCSV(mappedResult, performanceCode);
+          exportToCSV(mappedResult, performanceCode);
+        }
       });
   };
 
@@ -110,6 +120,12 @@ const ParticipantsForm = () => {
               <Tooltip title='Download Participants'>
                 <IconButton onClick={() => handleDownloadParticipants()}>
                   <Download/>
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title='Create New Event'>
+                <IconButton onClick={() => goToStep1()}>
+                  <Add/>
                 </IconButton>
               </Tooltip>
             </>

@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 
 import {
-  Box,
   Grid,
   Step,
   StepLabel,
@@ -13,7 +12,7 @@ import PerformanceDetailsForm from './performance-details-form';
 import ParticipantsForm from './participants-form';
 
 const TicketsPage = () => {
-  const [activeStep, setActiveStep] = useState(2);
+  const [activeStep, setActiveStep] = useState(0);
 
   const STEPS = ['Create Event', 'Details & Generate', 'Participants'];
 
@@ -25,6 +24,10 @@ const TicketsPage = () => {
     setActiveStep((prev) => prev + 1);
   };
 
+  const goToStep1 = () => {
+    setActiveStep(0);
+  };
+
   const RenderActiveComponent = () => {
     switch (activeStep) {
       case STEP_1:
@@ -32,7 +35,7 @@ const TicketsPage = () => {
       case STEP_2:
         return <PerformanceDetailsForm {...{ handleNextStep }}/>;
       case STEP_3:
-        return <ParticipantsForm/>;
+        return <ParticipantsForm {...{ goToStep1 }}/>;
       default:
         return <CreateEventForm {...{ handleNextStep }}/>;
     }

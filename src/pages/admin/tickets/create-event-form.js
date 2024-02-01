@@ -42,14 +42,14 @@ const CreateEventForm = ({ handleNextStep }) => {
   } = useForm();
 
   const onSubmit = (data) => {
-    dispatch(createEventAction(data));
+    dispatch(createEventAction(data))
+      .then(({ payload: { data: { is_success: isSuccess } } }) => {
+        console.log(isSuccess);
+        if (isSuccess) {
+          handleNextStep();
+        }
+      });
   };
-
-  useEffect(() => {
-    if (isSuccess) {
-      handleNextStep();
-    }
-  }, [isSuccess]);
 
   return <>
     <Grid item xs={12}>
