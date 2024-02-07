@@ -2,7 +2,9 @@ import React, {
   useEffect,
   useState
 } from 'react';
-import { useLocation } from 'react-router-dom';
+import {
+  useLocation, useParams
+} from 'react-router-dom';
 import BreadCrumbsUrl from '../breadcrumb-urls';
 
 import BreadCrumbs from '../../../components/breadcrumbs';
@@ -23,9 +25,13 @@ const Header = ({
   const [breadCrumbsLink, setBreadCrumbsLink] = useState([]);
 
   const { pathname } = useLocation();
+  const { performanceCode } = useParams();
 
   useEffect(() => {
-    setBreadCrumbsLink(BreadCrumbsUrl(pathname));
+    setBreadCrumbsLink(BreadCrumbsUrl({
+      pathname,
+      params: { performanceCode }
+    }));
   }, [pathname]);
 
   return <>

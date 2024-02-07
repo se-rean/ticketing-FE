@@ -17,7 +17,9 @@ import {
   GET_PERFORMANCE_DETAILS,
   CREATE_PARTICIPANTS,
   GET_PARTICIPANTS,
-  CREATE_PARTICIPANTS_BARCODE
+  CREATE_PARTICIPANTS_BARCODE,
+  GET_EVENTS,
+  SET_EVENTS
 } from '../action-types';
 
 const login = (state = {
@@ -55,7 +57,8 @@ const login = (state = {
 const table = (state = {
   selectedIds: [],
   page: 0,
-  pageSize: 100
+  pageSize: 100,
+  totalTableRows: null
 }, action) => {
   switch(action.type) {
     case SET_TABLE_SELECTED_ROWS:
@@ -73,6 +76,16 @@ const table = (state = {
         ...state,
         pageSize: action.payload
       };
+    case appendSuccess(GET_PARTICIPANTS):
+      return {
+        ...state,
+        totalTableRows: action.payload.data?.count
+      };
+    case appendSuccess(GET_EVENTS):
+      return {
+        ...state,
+        totalTableRows: action.payload.data?.count
+      };
     default:
       return state;
   }
@@ -84,8 +97,9 @@ const ticket = (state = {
   createParticipantsSuccess: null,
   errors: null,
   loading: false,
-  generateParticipantLoading: false,
-  participants: []
+  participantsLoading: false,
+  participants: [],
+  events: []
 }, action) => {
   switch(action.type) {
     case appendRequest(CREATE_EVENT):
@@ -104,10 +118,7 @@ const ticket = (state = {
     case appendFailed(CREATE_EVENT):
       return {
         ...state,
-        loading: false,
-        errors: action.error.response.data.errors,
-        createEventSuccess: action.error.response.data.is_success,
-        message: action.error.response.data.message
+        loading: false
       };
     case appendRequest(GET_PERFORMANCE_DETAILS):
       return {
@@ -125,20 +136,17 @@ const ticket = (state = {
     case appendFailed(GET_PERFORMANCE_DETAILS):
       return {
         ...state,
-        loading: false,
-        errors: action.error.response.data.errors,
-        isSuccess: action.error.response.data.is_success,
-        message: action.error.response.data.message
+        loading: false
       };
     case appendRequest(CREATE_PARTICIPANTS):
       return {
         ...state,
-        generateParticipantLoading: true
+        participantsLoading: true
       };
     case appendSuccess(CREATE_PARTICIPANTS):
       return {
         ...state,
-        generateParticipantLoading: false,
+        participantsLoading: false,
         errors: action.payload.data.errors,
         createParticipantsSuccess: action.payload.data.is_success,
         message: action.payload.data.message
@@ -146,40 +154,34 @@ const ticket = (state = {
     case appendFailed(CREATE_PARTICIPANTS):
       return {
         ...state,
-        generateParticipantLoading: false,
-        errors: action.error.response.data.errors,
-        createParticipantsSuccess: action.error.response.data.is_success,
-        message: action.error.response.data.message
+        participantsLoading: false
       };
     case appendRequest(GET_PARTICIPANTS):
       return {
         ...state,
-        loading: true
+        participantsLoading: true
       };
     case appendSuccess(GET_PARTICIPANTS):
       return {
         ...state,
-        loading: false,
+        participantsLoading: false,
         errors: action.payload.data.errors,
         message: action.payload.data.message
       };
     case appendFailed(GET_PARTICIPANTS):
       return {
         ...state,
-        loading: false,
-        errors: action.error.response.data.errors,
-        isSuccess: action.error.response.data.is_success,
-        message: action.error.response.data.message
+        participantsLoading: false
       };
     case appendRequest(CREATE_PARTICIPANTS_BARCODE):
       return {
         ...state,
-        loading: true
+        participantsLoading: true
       };
     case appendSuccess(CREATE_PARTICIPANTS_BARCODE):
       return {
         ...state,
-        loading: false,
+        participantsLoading: false,
         errors: action.payload.data.errors,
         isSuccess: action.payload.data.is_success,
         message: action.payload.data.message
@@ -187,10 +189,7 @@ const ticket = (state = {
     case appendFailed(CREATE_PARTICIPANTS_BARCODE):
       return {
         ...state,
-        loading: false,
-        errors: action.error.response.data.errors,
-        isSuccess: action.error.response.data.is_success,
-        message: action.error.response.data.message
+        participantsLoading: false
       };
     case SET_PERFORMANCE_DETAILS:
       return {
@@ -201,6 +200,28 @@ const ticket = (state = {
       return {
         ...state,
         participants: action.payload
+      };
+    case appendRequest(GET_EVENTS):
+      return {
+        ...state,
+        loading: true
+      };
+    case appendSuccess(GET_EVENTS):
+      return {
+        ...state,
+        loading: false,
+        errors: action.payload.data?.errors,
+        message: action.payload.data.message
+      };
+    case appendFailed(GET_EVENTS):
+      return {
+        ...state,
+        loading: false
+      };
+    case SET_EVENTS:
+      return {
+        ...state,
+        events: action.payload
       };
     default:
       return state;

@@ -49,7 +49,7 @@ const ParticipantsForm = ({ goToStep1 }) => {
 
   useEffect(() => {
     dispatch(getParticipantsAction({
-      performanceCode: 'PDUB01DEC2023B', // performanceCode
+      performanceCode: performanceCode,
       page: page + 1,
       pageSize
     }));
@@ -58,7 +58,7 @@ const ParticipantsForm = ({ goToStep1 }) => {
   const handleGenerateBarcode = () => {
     const payload = {
       participantsIds: [],
-      performanceCode: 'PDUB01DEC2023B' // performanceCode
+      performanceCode: performanceCode
     };
 
     dispatch(createParticipantsBarcodeAction(payload));
@@ -66,7 +66,7 @@ const ParticipantsForm = ({ goToStep1 }) => {
 
   const handleDownloadParticipants = () => {
     const payload = {
-      performanceCode: 'PDUB01DEC2023B', // performanceCode
+      performanceCode: performanceCode,
       page: 1,
       pageSize: 1000000
     };

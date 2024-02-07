@@ -17,12 +17,14 @@ import {
   GET_PARTICIPANTS,
   CREATE_EVENT,
   GET_PERFORMANCE_DETAILS,
-  CREATE_PARTICIPANTS_BARCODE
+  CREATE_PARTICIPANTS_BARCODE,
+  GET_EVENTS
 } from '../action-types';
 
 import {
   getParticipantsAction,
   getPerformanceDetailsAction,
+  setEventsAction,
   setParticipantsDataAction,
   setPerformanceDetailsAction
 } from '../actions';
@@ -63,41 +65,6 @@ function* watchGetParticipantsSuccess() {
   });
 }
 
-function* createEventSucess() {
-  yield takeEvery(appendSuccess(CREATE_EVENT), function* fn({ payload: { data: response } }) {
-    const { is_success: isSuccess, data: { performance_code: performanceCode } } = response;
-
-    sessionStorage.setItem('performanceCode', performanceCode);
-
-    if (isSuccess) {
-      // yield put(getPerformanceDetailsAction(performanceCode));
-      yield put(getPerformanceDetailsAction('PDUB01DEC2023B'));
-    }
-  });
-}
-
-function* createParticipantsBarcodeSuccess() {
-  yield takeEvery(appendSuccess(CREATE_PARTICIPANTS_BARCODE), function* fn({ payload: { data: response } }) {
-    const { is_success: isSuccess } = response;
-
-    const table = yield select(state => state.table);
-
-    if (isSuccess) {
-      // yield put(getParticipantsAction({
-      //   performanceCode: sessionStorage.getItem('performanceCode'),
-      //   page: table.page + 1,
-      //   pageSize: table.pageSize
-      // }));
-
-      yield put(getParticipantsAction({
-        performanceCode: 'PDUB01DEC2023B',
-        page: table.page + 1,
-        pageSize: table.pageSize
-      }));
-    }
-  });
-}
-
 function* getPerformanceDetailsSuccess() {
   yield takeEvery(appendSuccess(GET_PERFORMANCE_DETAILS), function* fn({ payload: { data: response } }) {
     const {
@@ -111,12 +78,24 @@ function* getPerformanceDetailsSuccess() {
   });
 }
 
+function* getEventsSuccess() {
+  yield takeEvery(appendSuccess(GET_EVENTS), function* fn({ payload: { data: response } }) {
+    const {
+      data,
+      is_success: isSuccess
+    } = response;
+
+    if (isSuccess) {
+      yield put(setEventsAction(data));
+    }
+  });
+}
+
 export default function* rootSaga() {
   yield all([
     watchLoginSuccess(),
     watchGetParticipantsSuccess(),
-    createEventSucess(),
     getPerformanceDetailsSuccess(),
-    createParticipantsBarcodeSuccess()
+    getEventsSuccess()
   ]);
 }

@@ -4,7 +4,8 @@ import {
   useSelector
 } from 'react-redux';
 import { createSelector } from 'reselect';
-import QRCode from 'react-qr-code';
+import Barcode from 'react-barcode';
+import { dateTime } from '../utils/date-formats';
 
 import {
   Table as MUITable,
@@ -16,8 +17,7 @@ import {
   TableCell,
   Checkbox,
   Box,
-  Paper,
-  Toolbar
+  Paper
 } from '@mui/material';
 import {
   setTablePageAction,
@@ -26,6 +26,7 @@ import {
 } from '../redux-saga/actions';
 import Loading from './loading';
 import EmptyBanner from './empty-banner';
+import StatusChip from './status-chip';
 
 const stateSelectors = createSelector(
   state => state.table,
@@ -38,6 +39,7 @@ const stateSelectors = createSelector(
 
 const RenderTableHead = ({
   headers,
+  headerActions,
   onSelectAllClick,
   numSelected,
   rowCount
@@ -45,21 +47,25 @@ const RenderTableHead = ({
   return <>
     <TableHead>
       <TableRow>
-        <TableCell padding='checkbox'>
-          <Checkbox
-            color='primary'
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-          />
-        </TableCell>
+        {headerActions && (
+          <TableCell
+            padding='checkbox'
+          >
+            <Checkbox
+              color='primary'
+              indeterminate={numSelected > 0 && numSelected < rowCount}
+              checked={rowCount > 0 && numSelected === rowCount}
+              onChange={onSelectAllClick}
+            />
+          </TableCell>
+        )}
 
         {headers.map((header, index) => (
           <Fragment key={index}>
             {header.rowId !== 'id' && (
               <TableCell
                 key={header.id}
-                align={'left'}
+                align='left'
               >
                 {header.label}
               </TableCell>
@@ -79,9 +85,16 @@ const RenderTableHead = ({
 const RenderRows = ({ row, header }) => {
   if (!row[header.rowId]) {
     return '--';
-  } else if (header.type === 'qrcode') {
+  } else if (header.type === 'datetime') {
+    return dateTime(row[header.rowId]);
+  } else if (header.type === 'status') {
     return <>
-      <QRCode size={50} value={row[header.rowId]}/>
+      <StatusChip {...{ label: row[header.rowId].toUpperCase() }}/>
+    </>;
+  }
+  else if (header.type === 'barcode') {
+    return <>
+      <Barcode fontSize={14} width={1} height={30} value={row[header.rowId]}/>
     </>;
   }
 
@@ -91,6 +104,7 @@ const RenderRows = ({ row, header }) => {
 const Table = ({
   headers,
   rows = [],
+  totalTableRows = null,
   headerActions = null,
   loading = false
 }) => {
@@ -149,87 +163,89 @@ const Table = ({
       {!loading
         ? (
           <>
-            {rows.length > 0
-              ? (
-                <>
-                  {headerActions && (
-                    <>
-                      <Toolbar sx={{
-                        display: 'flex', justifyContent: 'end'
-                      }}>
-                        {headerActions}
-                      </Toolbar>
-                    </>
-                  )}
+            {headerActions && (
+              <Box
+                sx={{
+                  py: 1,
+                  display: 'flex',
+                  justifyContent: 'end'
+                }}
+              >
+                {headerActions}
+              </Box>
+            )}
 
-                  <TableContainer>
-                    <MUITable
-                      size='small'
-                      stickyHeader
-                      dense
-                    >
-                      <RenderTableHead {...{
-                        headers,
-                        onSelectAllClick: handleSelectAllClick,
-                        numSelected: selectedIds.length,
-                        rowCount: rows.length
-                      }}/>
+            <TableContainer>
+              <MUITable
+                size='small'
+                stickyHeader
+                dense
+              >
+                <RenderTableHead {...{
+                  headers,
+                  headerActions,
+                  onSelectAllClick: handleSelectAllClick,
+                  numSelected: selectedIds.length,
+                  rowCount: rows.length
+                }}/>
 
-                      <TableBody>
-                        {rows.map((row, index) => (
-                          <Fragment key={index}>
-                            <TableRow
-                              hover
-                              onClick={(e) => handleClick(e, row.id)}
-                              role="checkbox"
-                              aria-checked={isSelected(row.id)}
-                              tabIndex={-1}
-                              key={row.id}
-                              selected={isSelected(row.id)}
-                              sx={{ cursor: 'pointer' }}
-                            >
-                              <TableCell padding="checkbox">
-                                <Checkbox
-                                  color="primary"
-                                  checked={isSelected(row.id)}
-                                  inputProps={{ 'aria-labelledby': `enhanced-table-checkbox-${index}` }}
-                                />
-                              </TableCell>
+                <TableBody>
+                  {rows.map((row, index) => (
+                    <Fragment key={index}>
+                      <TableRow
+                        hover={headerActions}
+                        onClick={(e) => headerActions
+                          ? handleClick(e, row.id)
+                          : null}
+                        role="checkbox"
+                        aria-checked={isSelected(row.id)}
+                        tabIndex={-1}
+                        key={row.id}
+                        selected={isSelected(row.id)}
+                        sx={{ cursor: headerActions ? 'pointer' : '' }}
+                      >
+                        {headerActions && (
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              color="primary"
+                              checked={isSelected(row.id)}
+                              inputProps={{ 'aria-labelledby': `enhanced-table-checkbox-${index}` }}
+                            />
+                          </TableCell>
+                        )}
 
-                              {headers.map((header, headerIndex) => (
-                                <Fragment key={headerIndex}>
-                                  <TableCell>
-                                    <RenderRows {...{
-                                      row,
-                                      header
-                                    }}/>
-                                  </TableCell>
-                                </Fragment>
-                              ))}
-                            </TableRow>
+                        {headers.map((header, headerIndex) => (
+                          <Fragment key={headerIndex}>
+                            <TableCell>
+                              <RenderRows {...{
+                                row,
+                                header
+                              }}/>
+                            </TableCell>
                           </Fragment>
                         ))}
-                      </TableBody>
-                    </MUITable>
-                  </TableContainer>
+                      </TableRow>
+                    </Fragment>
+                  ))}
+                </TableBody>
+              </MUITable>
+            </TableContainer>
 
-                  <TablePagination
-                    rowsPerPageOptions={[100, 500, 1000, 2000, 3000]}
-                    component="div"
-                    count={rows.length}
-                    rowsPerPage={pageSize}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                  />
-                </>
-              )
-              : (
-                <Box sx={{ height: 420 }}>
-                  <EmptyBanner/>
-                </Box>
-              )
-            }
+            {rows.length === 0 && (
+              <Box sx={{ height: 300 }}>
+                <EmptyBanner/>
+              </Box>
+            )}
+
+            <TablePagination
+              rowsPerPageOptions={[10, 100, 500, 1000, 2000, 3000]}
+              component="div"
+              count={totalTableRows || rows.length}
+              rowsPerPage={pageSize}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
           </>
         )
         : (

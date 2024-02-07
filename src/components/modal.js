@@ -14,9 +14,10 @@ const Modal = ({
   handleClose,
   children,
   customStyle = {
-    width: '90%',
-    maxWidth: 400
-  }
+    width: '80%',
+    maxWidth: 600
+  },
+  alignTitle = 'left'
 }) => {
   return <>
     <MUIModal
@@ -28,6 +29,7 @@ const Modal = ({
       aria-labelledby='modal-modal-title'
       disableEnforceFocus
       keepMounted
+      sx={{ overflowY: 'auto' }}
     >
       <Fade in={isOpen}>
         <Box
@@ -45,7 +47,7 @@ const Modal = ({
             ...customStyle
           }}
         >
-          <Typography align='center' className='mb-4' id='modal-modal-title' variant='h6' component='h2'>
+          <Typography align={alignTitle} className='mb-4' id='modal-modal-title' variant='h6' component='h2'>
             <strong>
               {title}
             </strong>

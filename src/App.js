@@ -41,7 +41,8 @@ const App = () => {
     return <>
       <Modal {...{
         title: 'Oops! something went wrong',
-        isOpen: isTokenExpired
+        isOpen: isTokenExpired,
+        alignTitle: 'center'
       }}>
         <Box
           sx={{

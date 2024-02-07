@@ -1,62 +1,59 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from 'react';
-
+import React, {
+  useEffect,
+  useState
+} from 'react';
 import {
-  Grid,
-  Step,
-  StepLabel,
-  Stepper
-} from '@mui/material';
-import CreateEventForm from './create-event-form';
-import PerformanceDetailsForm from './performance-details-form';
-import ParticipantsForm from './participants-form';
+  useDispatch,
+  useSelector
+} from 'react-redux';
+import { createSelector } from 'reselect';
+import { getEventsAction } from '../../../redux-saga/actions';
+import { TICKETING_EVENTS_TABLE_HEADERS } from '../../../utils/constants';
+import { useNavigate } from 'react-router-dom';
+
+import { Add } from '@mui/icons-material';
+import { Box } from '@mui/material';
+import Button from '../../../components/button';
+import Table from '../../../components/table';
+
+const stateSelectors = createSelector(
+  state => state.ticket,
+  (ticket) => ({
+    loading: ticket.loading,
+    events: ticket.events
+  })
+);
 
 const TicketsPage = () => {
-  const [activeStep, setActiveStep] = useState(0);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const STEPS = ['Create Event', 'Details & Generate', 'Participants'];
+  const {
+    loading,
+    events
+  } = useSelector(stateSelectors);
 
-  const STEP_1 = 0;
-  const STEP_2 = 1;
-  const STEP_3 = 2;
-
-  const handleNextStep = () => {
-    setActiveStep((prev) => prev + 1);
-  };
-
-  const goToStep1 = () => {
-    setActiveStep(0);
-  };
-
-  const RenderActiveComponent = () => {
-    switch (activeStep) {
-      case STEP_1:
-        return <CreateEventForm {...{ handleNextStep }}/>;
-      case STEP_2:
-        return <PerformanceDetailsForm {...{ handleNextStep }}/>;
-      case STEP_3:
-        return <ParticipantsForm {...{ goToStep1 }}/>;
-      default:
-        return <CreateEventForm {...{ handleNextStep }}/>;
-    }
-  };
+  useEffect(() => {
+    dispatch(getEventsAction());
+  }, []);
 
   return <>
-    <Grid container spacing={4}>
-      <Grid item xs={12}>
-        <Stepper activeStep={activeStep}>
-          {STEPS.map((label, index) => (
-            <Step key={index}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-      </Grid>
+    <Box sx={{ mb: 2 }} align='right'>
+      <Button
+        startIcon={<Add/>}
+        label='Add Event'
+        onClick={() => navigate('/admin/tickets/create-event')}
+      />
+    </Box>
 
-      <Grid item xs={12}>
-        <RenderActiveComponent/>
-      </Grid>
-    </Grid>
+    <Box>
+      <Table {...{
+        loading,
+        headers: TICKETING_EVENTS_TABLE_HEADERS,
+        rows: events
+      }}/>
+    </Box>
   </>;
 };
 

@@ -11,7 +11,10 @@ import {
   SET_PERFORMANCE_DETAILS,
   SET_AUTH_TOKEN_EXPIRED,
   CREATE_PARTICIPANTS,
-  CREATE_PARTICIPANTS_BARCODE
+  CREATE_PARTICIPANTS_BARCODE,
+  GET_EVENTS,
+  SET_EVENTS,
+  REFUND_PARTICIPANTS
 } from '../action-types';
 
 export const loginAction = (payload) => ({
@@ -111,6 +114,32 @@ export const createParticipantsBarcodeAction = (payload) => ({
         ...payload,
         limit: 1000000
       }
+    }
+  }
+});
+
+export const getEventsAction = () => ({
+  types: setTypes(GET_EVENTS),
+  payload: {
+    request: {
+      method: 'GET',
+      url: 'v1/Ticketing/events'
+    }
+  }
+});
+
+export const setEventsAction = (payload) => ({
+  type: SET_EVENTS,
+  payload
+});
+
+export const refundParticipantsAction = (payload) => ({
+  types: setTypes(REFUND_PARTICIPANTS),
+  payload: {
+    request: {
+      method: 'POST',
+      url: `v1/Ticketing/refund/?PCODE=${payload.performanceCode}`,
+      data: { participants: payload.participants }
     }
   }
 });
