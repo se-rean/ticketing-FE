@@ -36,7 +36,14 @@ import {
   AccordionSummary,
   Card,
   IconButton,
-  Tooltip
+  Tooltip,
+  Box,
+  Popper,
+  Fade,
+  Paper,
+  MenuList,
+  MenuItem,
+  ClickAwayListener
 } from '@mui/material';
 import {
   ExpandMore,
@@ -46,10 +53,13 @@ import {
   Add,
   Event,
   Upload,
-  Delete
+  Delete,
+  MoreHoriz
 } from '@mui/icons-material';
 import Table from '../../../components/table';
 import Loading from '../../../components/loading';
+import Modal from '../../../components/modal';
+import Button from '../../../components/button';
 import {
   createParticipantsAction,
   getParticipantsAction,
@@ -68,13 +78,18 @@ const stateSelectors = createSelector(
     participants: ticket.participants,
     page: table.page,
     pageSize: table.pageSize,
-    selectedTableRows: table.selectedIds,
+    selectedTableIds: table.selectedIds,
     totalTableRows: table.totalTableRows
   })
 );
 
 const PerformanceDetailsPage = () => {
   const [expanded, setExpanded] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [confirmMode, setConfirmMode] = useState(false);
+  const [isPopperOpen, setIsOpenPopper] = useState(false);
+  const [popperAnchor, setPopperAnchor] = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -85,7 +100,7 @@ const PerformanceDetailsPage = () => {
     participantsLoading,
     performanceDetails,
     participants,
-    selectedTableRows,
+    selectedTableIds,
     page,
     pageSize,
     totalTableRows
@@ -133,10 +148,11 @@ const PerformanceDetailsPage = () => {
           delete newItems['pricetype code'];
 
           return newItems;
-        }).filter(payload => !isEmpty(payload.performance_code) && !isEmpty(payload.area)
+        }).filter(payload => !isEmpty(payload.performance_code)
+          && !isEmpty(payload.area)
+          && payload.performance_code.includes(performanceCode)
           && performanceDetails.event_pricing
-            .some(pricing => payload.area.includes(pricing.section)
-              && payload.performance_code.includes(pricing.performance_code))
+            .some(pricing => payload.area.includes(pricing.section))
         );
 
         dispatch(createParticipantsAction(payload)).then(() => {
@@ -239,8 +255,42 @@ const PerformanceDetailsPage = () => {
   const handleRefundParticipants = () => {
     dispatch(refundParticipantsAction({
       performanceCode,
-      participants: selectedTableRows
+      participants: selectedTableIds
     })).then(() => fetchParticipants());
+  };
+
+  const handleConfirm = (mode, row) => {
+    setIsConfirmOpen(!isConfirmOpen);
+    setConfirmMode(mode);
+    setSelectedRow(row);
+  };
+
+  const handleYes = () => {
+    if (confirmMode === 'Generate Barcode') {
+      handleGenerateBarcode();
+    } else if (confirmMode === 'Refund') {
+      handleRefundParticipants();
+    } else if (confirmMode === 'Export to Excel') {
+      handleDownloadParticipants();
+    } else if (confirmMode === 'Delete') {
+      handleDelete();
+    }
+
+    setIsConfirmOpen(!isConfirmOpen);
+  };
+
+  const handleOpenRowActions = (e) => {
+    e.stopPropagation();
+    setIsOpenPopper(!isPopperOpen);
+    setPopperAnchor(e.currentTarget);
+  };
+
+  const handleEdit = () => {
+    setIsOpenPopper(!isPopperOpen);
+  };
+
+  const handleDelete = () => {
+    setIsOpenPopper(!isPopperOpen);
   };
 
   useEffect(() => {
@@ -462,6 +512,7 @@ const PerformanceDetailsPage = () => {
 
             <Grid item xs={12}>
               <Table {...{
+                id: 'performance-details-table',
                 loading: participantsLoading,
                 headers: TICKETING_TABLE_HEADERS,
                 rows: participants,
@@ -469,19 +520,19 @@ const PerformanceDetailsPage = () => {
                 headerActions: (
                   <>
                     <Tooltip title='Generate Barcode'>
-                      <IconButton onClick={() => handleGenerateBarcode()} disabled={isEmpty(participants)}>
+                      <IconButton onClick={() => handleConfirm('Generate Barcode')} disabled={isEmpty(participants)}>
                         <QrCode/>
                       </IconButton>
                     </Tooltip>
 
                     <Tooltip title='Process Refund'>
-                      <IconButton onClick={() => handleRefundParticipants()} disabled={selectedTableRows.length === 0}>
+                      <IconButton onClick={() => handleConfirm('Refund')} disabled={selectedTableIds.length === 0}>
                         <Replay/>
                       </IconButton>
                     </Tooltip>
 
-                    <Tooltip title='Export Excel'>
-                      <IconButton onClick={() => handleDownloadParticipants()} disabled={isEmpty(participants)}>
+                    <Tooltip title='Export to Excel'>
+                      <IconButton onClick={() => handleConfirm('Export to Excel')} disabled={isEmpty(participants)}>
                         <Download/>
                       </IconButton>
                     </Tooltip>
@@ -495,7 +546,7 @@ const PerformanceDetailsPage = () => {
                           type='file'
                           hidden
                           accept='application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                          onChange={handleUploadFile}
+                          onChange={(e) => handleUploadFile(e)}
                         />
                       </IconButton>
                     </Tooltip>
@@ -512,8 +563,64 @@ const PerformanceDetailsPage = () => {
                       </IconButton>
                     </Tooltip>
                   </>
+                ),
+                rowActions: (row) => (
+                  <>
+                    <Popper
+                      sx={{ zIndex: 1200 }}
+                      open={isPopperOpen}
+                      placement='bottom-start'
+                      anchorEl={popperAnchor}
+                      transition
+                      disablePortal
+                    >
+                      {({ TransitionProps }) => (
+                        <Fade {...TransitionProps} timeout={350}>
+                          <Paper>
+                            <ClickAwayListener onClickAway={() => setIsOpenPopper(!isPopperOpen)}>
+                              <MenuList autoFocusItem={isPopperOpen}>
+                                <MenuItem onClick={() => handleEdit(row)}>
+                                  Edit
+                                </MenuItem>
+
+                                <MenuItem onClick={() => handleConfirm('Delete', row)}>
+                                  Delete
+                                </MenuItem>
+                              </MenuList>
+                            </ClickAwayListener>
+                          </Paper>
+                        </Fade>
+                      )}
+                    </Popper>
+
+                    <IconButton onClick={(e) => handleOpenRowActions(e)}>
+                      <MoreHoriz/>
+                    </IconButton>
+                  </>
                 )
               }}/>
+
+              <Modal {...{
+                title: confirmMode,
+                isOpen: isConfirmOpen,
+                handleClose: () => setIsConfirmOpen(false)
+              }}>
+                <Box sx={{ mb: 2 }}>
+                  Are you sure you want to {confirmMode}?
+                </Box>
+
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'end',
+                    gap: 1
+                  }}
+                >
+                  <Button variant='label' label='No' onClick={() => setIsConfirmOpen(false)}/>
+
+                  <Button variant='label' label='Yes' onClick={() => handleYes()}/>
+                </Box>
+              </Modal>
             </Grid>
           </Grid>
         </Card>

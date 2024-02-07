@@ -82,8 +82,8 @@ const RenderTableHead = ({
 //   </>;
 // };
 
-const RenderRows = ({ row, header }) => {
-  if (!row[header.rowId]) {
+const RenderRows = ({ row, header, rowActions }) => {
+  if (!row[header.rowId] && header.type !== 'actions') {
     return '--';
   } else if (header.type === 'datetime') {
     return dateTime(row[header.rowId]);
@@ -91,24 +91,39 @@ const RenderRows = ({ row, header }) => {
     return <>
       <StatusChip {...{ label: row[header.rowId].toUpperCase() }}/>
     </>;
-  }
-  else if (header.type === 'barcode') {
+  } else if (header.type === 'barcode') {
     return <>
       <Barcode fontSize={14} width={1} height={30} value={row[header.rowId]}/>
     </>;
+  } else if (header.type === 'actions') {
+    return <>
+      {rowActions(row)}
+    </>;
+  } else {
+    return row[header.rowId];
   }
-
-  return row[header.rowId];
 };
 
 const Table = ({
-  headers,
+  id = '',
+  headers: tableHeaders,
   rows = [],
   totalTableRows = null,
   headerActions = null,
+  rowActions = null,
   loading = false
 }) => {
   const dispatch = useDispatch();
+
+  const headers = [...tableHeaders];
+
+  if (rowActions) {
+    headers.push({
+      rowId: 'actions',
+      label: 'Actions',
+      type: 'actions'
+    });
+  }
 
   const {
     selectedIds,
@@ -177,6 +192,7 @@ const Table = ({
 
             <TableContainer>
               <MUITable
+                id={id}
                 size='small'
                 stickyHeader
                 dense
@@ -219,7 +235,8 @@ const Table = ({
                             <TableCell>
                               <RenderRows {...{
                                 row,
-                                header
+                                header,
+                                rowActions
                               }}/>
                             </TableCell>
                           </Fragment>
