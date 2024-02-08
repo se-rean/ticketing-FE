@@ -14,7 +14,8 @@ import {
   CREATE_PARTICIPANTS_BARCODE,
   GET_EVENTS,
   SET_EVENTS,
-  REFUND_PARTICIPANTS
+  REFUND_PARTICIPANTS,
+  DELETE_PARTICIPANTS
 } from '../action-types';
 
 export const loginAction = (payload) => ({
@@ -137,9 +138,19 @@ export const refundParticipantsAction = (payload) => ({
   types: setTypes(REFUND_PARTICIPANTS),
   payload: {
     request: {
-      method: 'POST',
-      url: `v1/Ticketing/refund/?PCODE=${payload.performanceCode}`,
+      method: 'PUT',
+      url: `v1/Ticketing/refund?PCODE=${payload.performanceCode}`,
       data: { participants: payload.participants }
+    }
+  }
+});
+
+export const deleteParticipantsAction = (payload) => ({
+  types: setTypes(DELETE_PARTICIPANTS),
+  payload: {
+    request: {
+      method: 'DELETE',
+      url: `v1/Ticketing/participants?id=${payload}`
     }
   }
 });

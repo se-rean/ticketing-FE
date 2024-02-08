@@ -18,7 +18,8 @@ import { dateTime } from '../../../utils/date-formats';
 import { TICKETING_TABLE_HEADERS } from '../../../utils/constants';
 import {
   toastError,
-  exportToCSV
+  exportToCSV,
+  toastSuccess
 } from '../../../helpers';
 import * as XLSX from 'xlsx';
 import {
@@ -54,7 +55,7 @@ import {
   Event,
   Upload,
   Delete,
-  MoreHoriz
+  Edit
 } from '@mui/icons-material';
 import Table from '../../../components/table';
 import Loading from '../../../components/loading';
@@ -65,7 +66,10 @@ import {
   getParticipantsAction,
   getPerformanceDetailsAction,
   createParticipantsBarcodeAction,
-  refundParticipantsAction
+  refundParticipantsAction,
+  setTableSelectedIdsAction,
+  deleteParticipantsAction,
+  setParticipantsDataAction
 } from '../../../redux-saga/actions';
 
 const stateSelectors = createSelector(
@@ -87,9 +91,6 @@ const PerformanceDetailsPage = () => {
   const [expanded, setExpanded] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmMode, setConfirmMode] = useState(false);
-  const [isPopperOpen, setIsOpenPopper] = useState(false);
-  const [popperAnchor, setPopperAnchor] = useState(null);
-  const [selectedRow, setSelectedRow] = useState(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -204,13 +205,7 @@ const PerformanceDetailsPage = () => {
     };
 
     dispatch(createParticipantsBarcodeAction(payload))
-      .then((res) => {
-        const hasError = res.payload.data?.data[0]?.generate_barcode_api_respose;
-
-        if (hasError) {
-          toastError(hasError);
-        }
-
+      .then(() => {
         dispatch(getParticipantsAction({
           performanceCode: performanceCode,
           page: page + 1,
@@ -236,8 +231,6 @@ const PerformanceDetailsPage = () => {
         }
       }) => {
         if (isSuccess) {
-          const { performanceCode } = payload;
-
           const mappedResult = result.map(i => ({
             Name: `${i.firstname} ${i.lastname}`,
             Nationality: i.nationality,
@@ -247,7 +240,8 @@ const PerformanceDetailsPage = () => {
             Barcode: i.barcode
           }));
 
-          exportToCSV(mappedResult, performanceCode);
+          const date = new Date();
+          exportToCSV(mappedResult, `event_barcode_test_${date}`);
         }
       });
   };
@@ -256,13 +250,25 @@ const PerformanceDetailsPage = () => {
     dispatch(refundParticipantsAction({
       performanceCode,
       participants: selectedTableIds
-    })).then(() => fetchParticipants());
+    })).then((res) => {
+      const { payload: { data: { is_success: isSuccess } } } = res;
+      dispatch(setTableSelectedIdsAction([]));
+
+      if (isSuccess) {
+        fetchParticipants();
+      }
+    });
   };
 
-  const handleConfirm = (mode, row) => {
+  const handleConfirm = (event, mode, row = null) => {
+    event.stopPropagation();
     setIsConfirmOpen(!isConfirmOpen);
     setConfirmMode(mode);
-    setSelectedRow(row);
+
+    if (!isEmpty(row)) {
+      dispatch(setTableSelectedIdsAction([]));
+      dispatch(setTableSelectedIdsAction([row.id]));
+    }
   };
 
   const handleYes = () => {
@@ -279,18 +285,23 @@ const PerformanceDetailsPage = () => {
     setIsConfirmOpen(!isConfirmOpen);
   };
 
-  const handleOpenRowActions = (e) => {
+  const handleEdit = (e, row) => {
     e.stopPropagation();
-    setIsOpenPopper(!isPopperOpen);
-    setPopperAnchor(e.currentTarget);
-  };
 
-  const handleEdit = () => {
-    setIsOpenPopper(!isPopperOpen);
+    if (!isEmpty(row)) {
+      dispatch(setTableSelectedIdsAction([]));
+      dispatch(setTableSelectedIdsAction([row.id]));
+    }
   };
 
   const handleDelete = () => {
-    setIsOpenPopper(!isPopperOpen);
+    dispatch(deleteParticipantsAction(selectedTableIds)).then(() => {
+      const newParticipants = [...participants];
+      const index = newParticipants.findIndex(i => i.id === selectedTableIds[0]);
+      newParticipants.splice(index, 1);
+      dispatch(setParticipantsDataAction(newParticipants));
+      dispatch(setTableSelectedIdsAction([]));
+    });
   };
 
   useEffect(() => {
@@ -520,25 +531,25 @@ const PerformanceDetailsPage = () => {
                 headerActions: (
                   <>
                     <Tooltip title='Generate Barcode'>
-                      <IconButton onClick={() => handleConfirm('Generate Barcode')} disabled={isEmpty(participants)}>
+                      <IconButton onClick={(e) => handleConfirm(e, 'Generate Barcode')} disabled={isEmpty(participants)}>
                         <QrCode/>
                       </IconButton>
                     </Tooltip>
 
                     <Tooltip title='Process Refund'>
-                      <IconButton onClick={() => handleConfirm('Refund')} disabled={selectedTableIds.length === 0}>
+                      <IconButton color='warning' onClick={(e) => handleConfirm(e, 'Refund')} disabled={selectedTableIds.length === 0}>
                         <Replay/>
                       </IconButton>
                     </Tooltip>
 
                     <Tooltip title='Export to Excel'>
-                      <IconButton onClick={() => handleConfirm('Export to Excel')} disabled={isEmpty(participants)}>
+                      <IconButton color='success' onClick={(e) => handleConfirm(e, 'Export to Excel')} disabled={isEmpty(participants)}>
                         <Download/>
                       </IconButton>
                     </Tooltip>
 
                     <Tooltip title='Import Excel'>
-                      <IconButton component="label">
+                      <IconButton color='success' component="label">
                         <Upload/>
 
                         <input
@@ -552,51 +563,34 @@ const PerformanceDetailsPage = () => {
                     </Tooltip>
 
                     <Tooltip title='Add Participants'>
-                      <IconButton>
+                      <IconButton color='primary'>
                         <Add/>
                       </IconButton>
                     </Tooltip>
 
                     <Tooltip title='Create New Event'>
-                      <IconButton onClick={() => navigate('/admin/tickets/create-event')}>
+                      <IconButton color='primary' onClick={() => navigate('/admin/tickets/create-event')}>
                         <Event/>
                       </IconButton>
                     </Tooltip>
                   </>
                 ),
                 rowActions: (row) => (
-                  <>
-                    <Popper
-                      sx={{ zIndex: 1200 }}
-                      open={isPopperOpen}
-                      placement='bottom-start'
-                      anchorEl={popperAnchor}
-                      transition
-                      disablePortal
-                    >
-                      {({ TransitionProps }) => (
-                        <Fade {...TransitionProps} timeout={350}>
-                          <Paper>
-                            <ClickAwayListener onClickAway={() => setIsOpenPopper(!isPopperOpen)}>
-                              <MenuList autoFocusItem={isPopperOpen}>
-                                <MenuItem onClick={() => handleEdit(row)}>
-                                  Edit
-                                </MenuItem>
-
-                                <MenuItem onClick={() => handleConfirm('Delete', row)}>
-                                  Delete
-                                </MenuItem>
-                              </MenuList>
-                            </ClickAwayListener>
-                          </Paper>
-                        </Fade>
-                      )}
-                    </Popper>
-
-                    <IconButton onClick={(e) => handleOpenRowActions(e)}>
-                      <MoreHoriz/>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'start',
+                      gap: 2
+                    }}
+                  >
+                    <IconButton color='info' onClick={(e) => handleEdit(e, row)}>
+                      <Edit/>
                     </IconButton>
-                  </>
+
+                    <IconButton color='error' onClick={(e) => handleConfirm(e, 'Delete', row)}>
+                      <Delete/>
+                    </IconButton>
+                  </Box>
                 )
               }}/>
 

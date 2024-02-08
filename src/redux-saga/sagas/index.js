@@ -18,7 +18,9 @@ import {
   CREATE_EVENT,
   GET_PERFORMANCE_DETAILS,
   CREATE_PARTICIPANTS_BARCODE,
-  GET_EVENTS
+  GET_EVENTS,
+  REFUND_PARTICIPANTS,
+  DELETE_PARTICIPANTS
 } from '../action-types';
 
 import {
@@ -28,6 +30,10 @@ import {
   setParticipantsDataAction,
   setPerformanceDetailsAction
 } from '../actions';
+import {
+  toastError, toastSuccess
+} from '../../helpers';
+import { isEmpty } from 'lodash';
 
 function* watchLoginSuccess() {
   yield takeEvery(appendSuccess(LOGIN), function* fn({ payload: { data: response } }) {
@@ -91,11 +97,61 @@ function* getEventsSuccess() {
   });
 }
 
+function* refundParticipantsSuccess() {
+  yield takeEvery(appendSuccess(REFUND_PARTICIPANTS), function* fn({ payload: { data: response } }) {
+    const {
+      is_success: isSuccess,
+      errors
+    } = response;
+
+    if (!isSuccess) {
+      toastError(errors);
+    } else {
+      toastSuccess('Refunded, Successfully!');
+    }
+  });
+}
+
+function* generateBarcodeSuccess() {
+  yield takeEvery(appendSuccess(CREATE_PARTICIPANTS_BARCODE), function* fn({ payload: { data: response } }) {
+    const {
+      data,
+      is_success: isSuccess
+    } = response;
+
+    const hasError = data[0]?.generate_barcode_api_respose;
+
+    if (hasError) {
+      toastError(hasError);
+    } else {
+      toastSuccess('Barcode Generated, Successfully!');
+    }
+  });
+}
+
+function* deleteParticipantsSuccess() {
+  yield takeEvery(appendSuccess(DELETE_PARTICIPANTS), function* fn({ payload: { data: response } }) {
+    const {
+      errors,
+      is_success: isSuccess
+    } = response;
+
+    if (isEmpty(errors)) {
+      console.log('deleted');
+      toastSuccess('Deleted, Successfully!');
+    }
+  });
+}
+
+
 export default function* rootSaga() {
   yield all([
     watchLoginSuccess(),
     watchGetParticipantsSuccess(),
     getPerformanceDetailsSuccess(),
-    getEventsSuccess()
+    getEventsSuccess(),
+    refundParticipantsSuccess(),
+    generateBarcodeSuccess(),
+    deleteParticipantsSuccess()
   ]);
 }
