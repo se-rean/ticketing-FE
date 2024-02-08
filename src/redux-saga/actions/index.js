@@ -15,7 +15,8 @@ import {
   GET_EVENTS,
   SET_EVENTS,
   REFUND_PARTICIPANTS,
-  DELETE_PARTICIPANTS
+  DELETE_PARTICIPANTS,
+  CREATE_RANDOM_PARTICIPANTS
 } from '../action-types';
 
 export const loginAction = (payload) => ({
@@ -151,6 +152,17 @@ export const deleteParticipantsAction = (payload) => ({
     request: {
       method: 'DELETE',
       url: `v1/Ticketing/participants?id=${payload}`
+    }
+  }
+});
+
+export const createRandomParticipants = (payload) => ({
+  types: setTypes(CREATE_RANDOM_PARTICIPANTS),
+  payload: {
+    request: {
+      method: 'POST',
+      url: `v1/Ticketing/create-random-participants/${payload.performanceCode}`,
+      data: { category: payload.data }
     }
   }
 });
