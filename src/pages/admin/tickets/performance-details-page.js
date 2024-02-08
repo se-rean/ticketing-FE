@@ -499,6 +499,30 @@ const PerformanceDetailsPage = () => {
                                       {i.state}
                                     </Typography>
                                   </Grid>
+
+                                  <Grid item xs={6} md={6} lg={6} xl={6}>
+                                    <Typography variant='subtitle2'>
+                                      Sold:
+                                    </Typography>
+                                  </Grid>
+
+                                  <Grid item xs={6} md={6} lg={6} xl={6}>
+                                    <Typography color={i.state ? 'success.main' : 'error.main'} variant='subtitle2'>
+                                      {i.sold}
+                                    </Typography>
+                                  </Grid>
+
+                                  <Grid item xs={6} md={6} lg={6} xl={6}>
+                                    <Typography variant='subtitle2'>
+                                      Refunded:
+                                    </Typography>
+                                  </Grid>
+
+                                  <Grid item xs={6} md={6} lg={6} xl={6}>
+                                    <Typography color={i.state ? 'success.main' : 'error.main'} variant='subtitle2'>
+                                      {i.refunded}
+                                    </Typography>
+                                  </Grid>
                                 </Grid>
                               </Grid>
                             </Grid>
