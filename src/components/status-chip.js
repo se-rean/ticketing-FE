@@ -1,7 +1,8 @@
 import React from 'react';
 import { Chip } from '@mui/material';
 import {
-  eventStatus, participantsStatus
+  eventStatus,
+  participantsStatus
 } from '../utils/constants';
 
 const StatusChip = ({ label }) => {
@@ -21,6 +22,9 @@ const StatusChip = ({ label }) => {
       break;
     case participantsStatus.REFUNDED:
       color = 'error';
+      break;
+    case participantsStatus.PENDING:
+      color = 'warning';
       break;
     default:
       color = 'primary';

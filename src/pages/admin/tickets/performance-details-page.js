@@ -14,7 +14,9 @@ import {
   useParams
 } from 'react-router-dom';
 import { createSelector } from 'reselect';
-import { dateTime } from '../../../utils/date-formats';
+import {
+  YYYYMMDD, dateTime
+} from '../../../utils/date-formats';
 import { TICKETING_TABLE_HEADERS } from '../../../utils/constants';
 import {
   toastError,
@@ -118,7 +120,7 @@ const PerformanceDetailsPage = () => {
   const handleUploadFile = (e) => {
     const file = e.target.files[0];
 
-    const acceptedFileTypes = 'application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    const acceptedFileTypes = 'application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, .csv,';
 
     const ACCEPT_TYPE_MAPPER = acceptedFileTypes.split(/[ ,]+/);
 
@@ -127,33 +129,28 @@ const PerformanceDetailsPage = () => {
       document.getElementById('import-input').value = '';
     }
 
-    readExcelData(file)
-      .then((result) => {
+    readExcelData(file).then((result) => {
+      try {
         const keys = result[0];
         const zippedResult = map(result.slice(1), entry => zipObject(keys, entry));
 
         const payload = zippedResult.map(item => {
-          const ticketPrice = performanceDetails.event_pricing.find(pricing => pricing.type_code === item['pricetype code']).amount;
+          const ticketPrice = performanceDetails.event_pricing.find(pricing => pricing.type_code === item['pricetypecode']).amount;
 
           const newItems = {
             ...item,
-            performance_code: item['Performance Code'],
-            address_line_1: item['address line 1'],
-            pricetype_code: item['pricetype code'],
+            performance_code: item.performancecode,
+            address_line_1: item.addressline1,
+            pricetype_code: item['pricetypecode'],
+            amount: ticketPrice,
             totalAmount: ticketPrice * item['quantity']
           };
-
-          delete newItems['salutation'];
-          delete newItems['Performance Code'];
-          delete newItems['address line 1'];
-          delete newItems['pricetype code'];
 
           return newItems;
         }).filter(payload => !isEmpty(payload.performance_code)
           && !isEmpty(payload.area)
           && payload.performance_code.includes(performanceCode)
-          && performanceDetails.event_pricing
-            .some(pricing => payload.area.includes(pricing.section))
+          && performanceDetails.event_pricing.some(pricing => payload.area.includes(pricing.section))
         );
 
         dispatch(createParticipantsAction(payload)).then(() => {
@@ -165,7 +162,10 @@ const PerformanceDetailsPage = () => {
         });
 
         document.getElementById('import-input').value = '';
-      })
+      } catch (err) {
+        console.log(err);
+      }
+    })
       .catch((error) => {
         toastError(error);
         document.getElementById('import-input').value = '';
@@ -232,16 +232,21 @@ const PerformanceDetailsPage = () => {
       }) => {
         if (isSuccess) {
           const mappedResult = result.map(i => ({
-            Name: `${i.firstname} ${i.lastname}`,
-            Nationality: i.nationality,
-            Type: i.pricetype_code,
-            ['Perfomance Code']: i.performance_code,
-            Price: i.total_amount,
-            Barcode: i.barcode
+            Firstname: i.firstname,
+            Lastname: i.lastname,
+            Email: i.email,
+            Phone: i.phonenumber,
+            ['Job Title']: i.job_title,
+            Company: i.company_name,
+            Type: i.type,
+            Barcode: i.barcode,
+            ['Event']: performanceDetails.name,
+            ['Event Area']: i.area,
+            ['Event Type']: i.pricetype_code
           }));
 
           const date = new Date();
-          exportToCSV(mappedResult, `event_barcode_test_${date}`);
+          exportToCSV(mappedResult, 'event_barcode');
         }
       });
   };
@@ -556,8 +561,8 @@ const PerformanceDetailsPage = () => {
                           id='import-input'
                           type='file'
                           hidden
-                          accept='application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                          onChange={(e) => handleUploadFile(e)}
+                          accept='application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, .csv,'
+                          onChange={handleUploadFile}
                         />
                       </IconButton>
                     </Tooltip>

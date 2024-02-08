@@ -72,5 +72,6 @@ export const eventStatus = {
 
 export const participantsStatus = {
   SOLD: 'SOLD',
-  REFUNDED: 'REFUNEDED'
+  REFUNDED: 'REFUNEDED',
+  PENDING: 'PENDING'
 };
