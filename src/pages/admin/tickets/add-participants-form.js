@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import Button from '../../../components/button';
 import Input from '../../../components/input';
-import { createRandomParticipants } from '../../../redux-saga/actions';
+import { createRandomParticipantsAction } from '../../../redux-saga/actions';
 
 const AddParticipantsForm = ({
   performanceCode,
@@ -52,10 +52,9 @@ const AddParticipantsForm = ({
       data: data.categories
     };
 
-    dispatch(createRandomParticipants(payload));
-    setIsAddFormOpen(!isAddFormOpen);
+    dispatch(createRandomParticipantsAction(payload));
     fetchParticipants();
-    reset();
+    handleCloseAddForm();
   };
 
   useEffect(() => {
@@ -70,10 +69,6 @@ const AddParticipantsForm = ({
       setValue('categories', eventPricing);
     }
   }, [isAddFormOpen]);
-
-  useEffect(() => {
-    console.log(fieldErrors);
-  }, [fieldErrors]);
 
   return <>
     <form onSubmit={handleSubmit(onSubmitAddParticipants)}>

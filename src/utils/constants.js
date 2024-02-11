@@ -15,11 +15,6 @@ export const TICKETING_TABLE_HEADERS = [
     type: 'text'
   },
   {
-    rowId: 'performance_code',
-    label: 'PC',
-    type: 'text'
-  },
-  {
     rowId: 'total_amount',
     label: 'Price',
     type: 'text'
