@@ -20,7 +20,8 @@ import {
   CREATE_PARTICIPANTS_BARCODE,
   GET_EVENTS,
   REFUND_PARTICIPANTS,
-  DELETE_PARTICIPANTS
+  DELETE_PARTICIPANTS,
+  UPDATE_PARTICIPANTS
 } from '../action-types';
 
 import {
@@ -137,8 +138,20 @@ function* deleteParticipantsSuccess() {
     } = response;
 
     if (isEmpty(errors)) {
-      console.log('deleted');
       toastSuccess('Deleted, Successfully!');
+    }
+  });
+}
+
+function* updateParticipantsSuccess() {
+  yield takeEvery(appendSuccess(UPDATE_PARTICIPANTS), function* fn({ payload: { data: response } }) {
+    const {
+      errors,
+      is_success: isSuccess
+    } = response;
+
+    if (isSuccess) {
+      toastSuccess('Updated, Successfully!');
     }
   });
 }
@@ -152,6 +165,7 @@ export default function* rootSaga() {
     getEventsSuccess(),
     refundParticipantsSuccess(),
     generateBarcodeSuccess(),
-    deleteParticipantsSuccess()
+    deleteParticipantsSuccess(),
+    updateParticipantsSuccess()
   ]);
 }

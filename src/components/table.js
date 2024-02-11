@@ -79,11 +79,6 @@ const RenderTableHead = ({
   </>;
 };
 
-// const RenderTableToolbar = () => {
-//   return <>
-//   </>;
-// };
-
 const RenderRows = ({ row, header, rowActions }) => {
   if (!row[header.rowId] && header.type !== 'actions') {
     if (header.type === 'status' && row.generate_barcode_api_respose != 'OK' && row.generate_barcode_api_respose != null ) {

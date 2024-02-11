@@ -66,6 +66,7 @@ import {
   deleteParticipantsAction,
   setParticipantsDataAction
 } from '../../../redux-saga/actions';
+import EditParticipantsForm from './edit-participants-form';
 
 const stateSelectors = createSelector(
   state => state.ticket,
@@ -87,6 +88,8 @@ const PerformanceDetailsPage = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmMode, setConfirmMode] = useState(false);
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -288,8 +291,8 @@ const PerformanceDetailsPage = () => {
     e.stopPropagation();
 
     if (!isEmpty(row)) {
-      dispatch(setTableSelectedIdsAction([]));
-      dispatch(setTableSelectedIdsAction([row.id]));
+      setIsEditFormOpen(!isEditFormOpen);
+      setSelectedRow(row);
     }
   };
 
@@ -330,7 +333,7 @@ const PerformanceDetailsPage = () => {
                       <Grid container spacing={1}>
                         <Grid item xs={12} md={6} lg={6} xl={6}>
                           <Typography variant='subtitle2'>
-                              Performance Code:
+                            Performance Code:
                           </Typography>
                         </Grid>
 
@@ -350,7 +353,7 @@ const PerformanceDetailsPage = () => {
                       <Grid container spacing={1}>
                         <Grid item xs={12} md={6} lg={6} xl={6}>
                           <Typography variant='subtitle2'>
-                              Name:
+                            Name:
                           </Typography>
                         </Grid>
 
@@ -370,7 +373,7 @@ const PerformanceDetailsPage = () => {
                       <Grid container spacing={1}>
                         <Grid item xs={12} md={6} lg={6} xl={6}>
                           <Typography variant='subtitle2'>
-                              Start Date:
+                            Start Date:
                           </Typography>
                         </Grid>
 
@@ -390,7 +393,7 @@ const PerformanceDetailsPage = () => {
                       <Grid container spacing={1}>
                         <Grid item xs={12} md={6} lg={6} xl={6}>
                           <Typography variant='subtitle2'>
-                              End Date:
+                            End Date:
                           </Typography>
                         </Grid>
 
@@ -410,7 +413,7 @@ const PerformanceDetailsPage = () => {
                       <Grid container spacing={1}>
                         <Grid item xs={12} md={6} lg={6} xl={6}>
                           <Typography variant='subtitle2'>
-                              Venue:
+                            Venue:
                           </Typography>
                         </Grid>
 
@@ -516,18 +519,22 @@ const PerformanceDetailsPage = () => {
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <Typography color='primary'>
-                {!isAddFormOpen && (
+                {!isAddFormOpen && !isEditFormOpen && (
                   <strong>Participants</strong>
                 )}
 
                 {isAddFormOpen && (
                   <strong>Add Participants</strong>
                 )}
+
+                {isEditFormOpen && (
+                  <strong>Edit Participants</strong>
+                )}
               </Typography>
             </Grid>
 
             <Grid item xs={12}>
-              {!isAddFormOpen && (
+              {!isAddFormOpen && !isEditFormOpen && (
                 <Table {...{
                   id: 'performance-details-table',
                   loading: participantsLoading,
@@ -613,10 +620,25 @@ const PerformanceDetailsPage = () => {
                 }} />
               )}
 
+              {isEditFormOpen && (
+                <EditParticipantsForm {...{
+                  performanceCode,
+                  isEditFormOpen,
+                  setIsEditFormOpen,
+                  fetchParticipants,
+                  loading,
+                  dispatch,
+                  selectedRow
+                }}/>
+              )}
+
               <Modal {...{
                 title: confirmMode,
                 isOpen: isConfirmOpen,
-                handleClose: () => setIsConfirmOpen(false)
+                handleClose: () => {
+                  setIsConfirmOpen(false);
+                  dispatch(setTableSelectedIdsAction([]));
+                }
               }}>
                 <Box sx={{ mb: 2 }}>
                   Are you sure you want to {confirmMode}?

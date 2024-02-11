@@ -67,3 +67,9 @@ export const exportToCSV = (data, title) => {
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
   XLSX.writeFile(workbook, `${title}-${moment(new Date()).format('YYYY-MM-DD')}.xlsx`);
 };
+
+export const numbersOnlyKeyPress = (e) => {
+  if (!/[0-9]/.test(e.key)) {
+    e.preventDefault();
+  }
+};
