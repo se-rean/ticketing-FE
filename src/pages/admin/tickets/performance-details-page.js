@@ -621,13 +621,15 @@ const PerformanceDetailsPage = () => {
                             gap: 2
                           }}
                         >
-                          <IconButton color='info' onClick={(e) => handleEdit(e, row)}>
-                            <Edit/>
-                          </IconButton>
-
-                          <IconButton color='error' onClick={(e) => handleConfirm(e, 'Delete', row)}>
-                            <Delete/>
-                          </IconButton>
+                          {
+                            ['pending', 'failed'].includes(row.status) && (
+                              <><IconButton color='info' onClick={(e) => handleEdit(e, row)}>
+                                <Edit />
+                              </IconButton><IconButton color='error' onClick={(e) => handleConfirm(e, 'Delete', row)}>
+                                <Delete />
+                              </IconButton></>
+                            )
+                          }
                         </Box>
                       )
                     }}/>
