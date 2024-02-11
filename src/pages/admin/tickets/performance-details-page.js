@@ -249,6 +249,8 @@ const PerformanceDetailsPage = () => {
   };
 
   const handleRefundParticipants = () => {
+    const filterParticipants = participants.filter(p => selectedTableIds.includes(p.id) && p.status != 'sold');
+    if (filterParticipants && filterParticipants.length > 0) return toastError('Participant/s status not allowed for refund.');
     dispatch(refundParticipantsAction({
       performanceCode,
       participants: selectedTableIds
@@ -266,8 +268,9 @@ const PerformanceDetailsPage = () => {
     event.stopPropagation();
     setIsConfirmOpen(!isConfirmOpen);
     setConfirmMode(mode);
-
+    console.log(row)
     if (!isEmpty(row)) {
+      if (mode == 'Refund' && row.status !== 'sold') return;
       dispatch(setTableSelectedIdsAction([]));
       dispatch(setTableSelectedIdsAction([row.id]));
     }
