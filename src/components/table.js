@@ -79,7 +79,10 @@ const RenderTableHead = ({
   </>;
 };
 
-const RenderRows = ({ row, header, rowActions }) => {
+const RenderRows = ({ row, header, rowActions, link = false }) => {
+  if (link && header.rowId == 'performance_code') {
+    return <a href={`${window.location.origin}/admin/tickets/performance-details/${row[header.rowId]}`}>{row[header.rowId]}</a>;
+  }
   if (!row[header.rowId] && header.type !== 'actions') {
     if (header.type === 'status' && row.generate_barcode_api_respose != 'OK' && row.generate_barcode_api_respose != null ) {
       const color = row.generate_barcode_api_respose != 'OK' ? 'red' : 'white';
@@ -125,7 +128,8 @@ const Table = ({
   totalTableRows = null,
   headerActions = null,
   rowActions = null,
-  loading = false
+  loading = false,
+  link = false
 }) => {
   const dispatch = useDispatch();
 
@@ -250,7 +254,8 @@ const Table = ({
                               <RenderRows {...{
                                 row,
                                 header,
-                                rowActions
+                                rowActions,
+                                link
                               }}/>
                             </TableCell>
                           </Fragment>

@@ -11,7 +11,7 @@ export default [
     path: '/admin'
   },
   {
-    label: 'Tickets',
+    label: 'Events',
     icon: <ConfirmationNumber sx={{ color: 'white' }}/>,
     path: '/admin/tickets'
   }

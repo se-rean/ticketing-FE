@@ -51,7 +51,8 @@ const TicketsPage = () => {
       <Table {...{
         loading,
         headers: TICKETING_EVENTS_TABLE_HEADERS,
-        rows: events
+        rows: events,
+        link: true
       }}/>
     </Box>
   </>;
