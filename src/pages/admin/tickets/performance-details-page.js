@@ -537,153 +537,155 @@ const PerformanceDetailsPage = () => {
           </Card>
         </Grid>
       }
+      {
+        !isEmpty(performanceDetails.event_pricing) && (
+          <Grid item xs={12}>
+            <Card sx={{ p: 3 }}>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <Typography color='primary'>
+                    {!isAddFormOpen && !isEditFormOpen && (
+                      <strong>Participants</strong>
+                    )}
 
-      <Grid item xs={12}>
-        <Card sx={{ p: 3 }}>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Typography color='primary'>
-                {!isAddFormOpen && !isEditFormOpen && (
-                  <strong>Participants</strong>
-                )}
+                    {isAddFormOpen && (
+                      <strong>Add Participants</strong>
+                    )}
 
-                {isAddFormOpen && (
-                  <strong>Add Participants</strong>
-                )}
+                    {isEditFormOpen && (
+                      <strong>Edit Participants</strong>
+                    )}
+                  </Typography>
+                </Grid>
 
-                {isEditFormOpen && (
-                  <strong>Edit Participants</strong>
-                )}
-              </Typography>
-            </Grid>
+                <Grid item xs={12}>
+                  {!isAddFormOpen && !isEditFormOpen && (
+                    <Table {...{
+                      id: 'performance-details-table',
+                      loading: participantsLoading,
+                      headers: TICKETING_TABLE_HEADERS,
+                      rows: participants,
+                      totalTableRows,
+                      headerActions: (
+                        <>
+                          <Tooltip title='Generate Barcode'>
+                            <IconButton onClick={(e) => handleConfirm(e, 'Generate Barcode')} disabled={isEmpty(participants)}>
+                              <QrCode/>
+                            </IconButton>
+                          </Tooltip>
 
-            <Grid item xs={12}>
-              {!isAddFormOpen && !isEditFormOpen && (
-                <Table {...{
-                  id: 'performance-details-table',
-                  loading: participantsLoading,
-                  headers: TICKETING_TABLE_HEADERS,
-                  rows: participants,
-                  totalTableRows,
-                  headerActions: (
-                    <>
-                      <Tooltip title='Generate Barcode'>
-                        <IconButton onClick={(e) => handleConfirm(e, 'Generate Barcode')} disabled={isEmpty(participants)}>
-                          <QrCode/>
-                        </IconButton>
-                      </Tooltip>
+                          <Tooltip title='Process Refund'>
+                            <IconButton color='warning' onClick={(e) => handleConfirm(e, 'Refund')} disabled={selectedTableIds.length === 0}>
+                              <Replay/>
+                            </IconButton>
+                          </Tooltip>
 
-                      <Tooltip title='Process Refund'>
-                        <IconButton color='warning' onClick={(e) => handleConfirm(e, 'Refund')} disabled={selectedTableIds.length === 0}>
-                          <Replay/>
-                        </IconButton>
-                      </Tooltip>
+                          <Tooltip title='Export to Excel'>
+                            <IconButton color='success' onClick={(e) => handleConfirm(e, 'Export to Excel')} disabled={isEmpty(participants)}>
+                              <Download/>
+                            </IconButton>
+                          </Tooltip>
 
-                      <Tooltip title='Export to Excel'>
-                        <IconButton color='success' onClick={(e) => handleConfirm(e, 'Export to Excel')} disabled={isEmpty(participants)}>
-                          <Download/>
-                        </IconButton>
-                      </Tooltip>
+                          <Tooltip title='Import Excel'>
+                            <IconButton color='success' component="label">
+                              <Upload/>
 
-                      <Tooltip title='Import Excel'>
-                        <IconButton color='success' component="label">
-                          <Upload/>
+                              <input
+                                id='import-input'
+                                type='file'
+                                hidden
+                                accept='application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, .csv,'
+                                onChange={handleUploadFile}
+                              />
+                            </IconButton>
+                          </Tooltip>
 
-                          <input
-                            id='import-input'
-                            type='file'
-                            hidden
-                            accept='application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, .csv,'
-                            onChange={handleUploadFile}
-                          />
-                        </IconButton>
-                      </Tooltip>
+                          <Tooltip title='Add Participants'>
+                            <IconButton color='primary' onClick={() => setIsAddFormOpen(!isAddFormOpen)}>
+                              <Add/>
+                            </IconButton>
+                          </Tooltip>
 
-                      <Tooltip title='Add Participants'>
-                        <IconButton color='primary' onClick={() => setIsAddFormOpen(!isAddFormOpen)}>
-                          <Add/>
-                        </IconButton>
-                      </Tooltip>
+                          <Tooltip title='Create New Event'>
+                            <IconButton color='primary' onClick={() => navigate('/admin/tickets/create-event')}>
+                              <Event/>
+                            </IconButton>
+                          </Tooltip>
+                        </>
+                      ),
+                      rowActions: (row) => (
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'start',
+                            gap: 2
+                          }}
+                        >
+                          <IconButton color='info' onClick={(e) => handleEdit(e, row)}>
+                            <Edit/>
+                          </IconButton>
 
-                      <Tooltip title='Create New Event'>
-                        <IconButton color='primary' onClick={() => navigate('/admin/tickets/create-event')}>
-                          <Event/>
-                        </IconButton>
-                      </Tooltip>
-                    </>
-                  ),
-                  rowActions: (row) => (
+                          <IconButton color='error' onClick={(e) => handleConfirm(e, 'Delete', row)}>
+                            <Delete/>
+                          </IconButton>
+                        </Box>
+                      )
+                    }}/>
+                  )}
+
+                  {isAddFormOpen && (
+                    <AddParticipantsForm {...{
+                      performanceCode,
+                      isAddFormOpen,
+                      setIsAddFormOpen,
+                      fetchParticipants,
+                      performanceDetails,
+                      loading,
+                      dispatch
+                    }} />
+                  )}
+
+                  {isEditFormOpen && (
+                    <EditParticipantsForm {...{
+                      performanceCode,
+                      isEditFormOpen,
+                      setIsEditFormOpen,
+                      fetchParticipants,
+                      loading,
+                      dispatch,
+                      selectedRow
+                    }}/>
+                  )}
+
+                  <Modal {...{
+                    title: confirmMode,
+                    isOpen: isConfirmOpen,
+                    handleClose: () => {
+                      setIsConfirmOpen(false);
+                      dispatch(setTableSelectedIdsAction([]));
+                    }
+                  }}>
+                    <Box sx={{ mb: 2 }}>
+                  Are you sure you want to {confirmMode}?
+                    </Box>
+
                     <Box
                       sx={{
                         display: 'flex',
-                        justifyContent: 'start',
-                        gap: 2
+                        justifyContent: 'end',
+                        gap: 1
                       }}
                     >
-                      <IconButton color='info' onClick={(e) => handleEdit(e, row)}>
-                        <Edit/>
-                      </IconButton>
+                      <Button variant='label' label='No' onClick={() => setIsConfirmOpen(false)}/>
 
-                      <IconButton color='error' onClick={(e) => handleConfirm(e, 'Delete', row)}>
-                        <Delete/>
-                      </IconButton>
+                      <Button variant='label' label='Yes' onClick={() => handleYes()}/>
                     </Box>
-                  )
-                }}/>
-              )}
-
-              {isAddFormOpen && (
-                <AddParticipantsForm {...{
-                  performanceCode,
-                  isAddFormOpen,
-                  setIsAddFormOpen,
-                  fetchParticipants,
-                  performanceDetails,
-                  loading,
-                  dispatch
-                }} />
-              )}
-
-              {isEditFormOpen && (
-                <EditParticipantsForm {...{
-                  performanceCode,
-                  isEditFormOpen,
-                  setIsEditFormOpen,
-                  fetchParticipants,
-                  loading,
-                  dispatch,
-                  selectedRow
-                }}/>
-              )}
-
-              <Modal {...{
-                title: confirmMode,
-                isOpen: isConfirmOpen,
-                handleClose: () => {
-                  setIsConfirmOpen(false);
-                  dispatch(setTableSelectedIdsAction([]));
-                }
-              }}>
-                <Box sx={{ mb: 2 }}>
-                  Are you sure you want to {confirmMode}?
-                </Box>
-
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'end',
-                    gap: 1
-                  }}
-                >
-                  <Button variant='label' label='No' onClick={() => setIsConfirmOpen(false)}/>
-
-                  <Button variant='label' label='Yes' onClick={() => handleYes()}/>
-                </Box>
-              </Modal>
-            </Grid>
+                  </Modal>
+                </Grid>
+              </Grid>
+            </Card>
           </Grid>
-        </Card>
-      </Grid>
+        )}
     </Grid>
   </>;
 };
