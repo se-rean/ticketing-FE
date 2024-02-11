@@ -70,7 +70,7 @@ const EditParticipantsForm = ({
       setValue('area', selectedRow.area);
       setValue('pricetype_code', selectedRow.pricetype_code);
       setValue('quantity', selectedRow.quantity);
-      setValue('amount', selectedRow.amount);
+      setValue('totalAmount', selectedRow.total_amount);
       setValue('qualifier_code', selectedRow.qualifier_code);
       setValue('offer_code', selectedRow.offer_code);
     }
@@ -249,36 +249,16 @@ const EditParticipantsForm = ({
       </Grid>
 
       <Grid container spacing={2}>
-        <Grid item xs={12} md={4} lg={4} xl={4}>
+        <Grid item xs={12} md={2} lg={2} xl={2}>
           <Input
             name='area'
             label='Area'
             {...register('area', { required: 'Area field is required.' })}
             error={fieldErrors?.area}
-            disabled
           />
         </Grid>
 
-        <Grid item xs={12} md={4} lg={4} xl={4}>
-          <Input
-            name='areacode'
-            label='Area Code'
-            {...register('areacode', { required: 'Area code field is required.' })}
-            error={fieldErrors?.areacode}
-          />
-        </Grid>
-
-        <Grid item xs={12} md={4} lg={4} xl={4}>
-          <Input
-            name='pricetype_code'
-            label='Price Type Code'
-            {...register('pricetype_code', { required: 'Price type code field is required.' })}
-            error={fieldErrors?.pricetype_code}
-            disabled
-          />
-        </Grid>
-
-        <Grid item xs={12} md={6} lg={6} xl={6}>
+        <Grid item xs={12} md={2} lg={2} xl={2}>
           <Input
             name='quantity'
             label='Quantity'
@@ -288,22 +268,31 @@ const EditParticipantsForm = ({
           />
         </Grid>
 
-        <Grid item xs={12} md={6} lg={6} xl={6}>
+        <Grid item xs={12} md={2} lg={2} xl={2}>
           <Input
-            name='amount'
-            label='Amount'
-            {...register('amount', { required: 'Amount field is required.' })}
-            error={fieldErrors?.amount}
-            disabled
+            name='pricetype_code'
+            label='Price Type Code'
+            {...register('pricetype_code', { required: 'Price type code field is required.' })}
+            error={fieldErrors?.pricetype_code}
           />
         </Grid>
 
-        <Grid item xs={12} md={6} lg={6} xl={6}>
+        <Grid item xs={12} md={2} lg={2} xl={2}>
+          <Input
+            name='totalAmount'
+            label='Amount'
+            {...register('totalAmount', { required: 'Amount field is required.' })}
+            error={fieldErrors?.amount}
+          />
+        </Grid>
+
+        {/* <Grid item xs={12} md={6} lg={6} xl={6}>
           <Input
             name='qualifier_code'
             label='Qualifier Code'
             {...register('qualifier_code', { required: 'Qualifier code field is required.' })}
             error={fieldErrors?.qualifier_code}
+            disabled
           />
         </Grid>
 
@@ -313,8 +302,9 @@ const EditParticipantsForm = ({
             label='Offer Code'
             {...register('offer_code', { required: 'Offer code field is required.' })}
             error={fieldErrors?.qualifier_code}
+            disabled
           />
-        </Grid>
+        </Grid> */}
 
         <Grid item xs={12}>
           <Box
@@ -332,8 +322,9 @@ const EditParticipantsForm = ({
             />
 
             <Button
-              label='Submit'
+              label='Update'
               type='submit'
+              disabled={['pending', 'failed'].includes(selectedRow.status) ? false:true}
               color='primary'
             />
           </Box>
