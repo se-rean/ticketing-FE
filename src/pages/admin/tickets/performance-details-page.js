@@ -375,6 +375,26 @@ const PerformanceDetailsPage = () => {
                       <Grid container spacing={1}>
                         <Grid item xs={12} md={6} lg={6} xl={6}>
                           <Typography variant='subtitle2'>
+                            Status:
+                          </Typography>
+                        </Grid>
+
+                        <Grid color={'green'} item xs={12} md={6} lg={6} xl={6}>
+                          <Typography variant='subtitle2'>
+                            {performanceDetails.status ? performanceDetails.status : '--'}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Divider/>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Grid container spacing={1}>
+                        <Grid item xs={12} md={6} lg={6} xl={6}>
+                          <Typography variant='subtitle2'>
                             Start Date:
                           </Typography>
                         </Grid>
