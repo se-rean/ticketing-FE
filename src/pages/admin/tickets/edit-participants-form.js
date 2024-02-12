@@ -54,8 +54,8 @@ const EditParticipantsForm = ({
       setValue('salutation', selectedRow.salutation);
       setValue('firstname', selectedRow.firstname);
       setValue('lastname', selectedRow.lastname);
-      const parsedDate = moment(selectedRow.dateofbirth, 'DD/MM/YYYY');
-      setValue('dateofbirth', parsedDate.format('YYYY-MM-DD'));
+      const parsedDate = moment(selectedRow.dateofbirth).format('YYYY-MM-DD');
+      setValue('dateofbirth', parsedDate);
       setValue('email', selectedRow.email);
       setValue('phonenumber', selectedRow.phonenumber);
       setValue('city', selectedRow.city);
