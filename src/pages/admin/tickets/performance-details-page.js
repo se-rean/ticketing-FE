@@ -268,7 +268,6 @@ const PerformanceDetailsPage = () => {
     event.stopPropagation();
     setIsConfirmOpen(!isConfirmOpen);
     setConfirmMode(mode);
-    console.log(row)
     if (!isEmpty(row)) {
       if (mode == 'Refund' && row.status !== 'sold') return;
       dispatch(setTableSelectedIdsAction([]));

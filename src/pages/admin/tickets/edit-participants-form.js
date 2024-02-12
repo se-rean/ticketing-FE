@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { emailOnly } from '../../../utils/regex';
 import { numbersOnlyKeyPress } from '../../../helpers';
-
+import countryCode from '../../../utils/countryCode.json';
 import {
   Grid,
   Box
@@ -13,6 +13,7 @@ import Input from '../../../components/input';
 import Button from '../../../components/button';
 import moment from 'moment';
 import { updateParticipantsAction } from '../../../redux-saga/actions';
+import InputSelect from '../../../components/input-select';
 
 const EditParticipantsForm = ({
   performanceCode,
@@ -168,10 +169,11 @@ const EditParticipantsForm = ({
         </Grid>
 
         <Grid item xs={12} md={6} lg={4} xl={4}>
-          <Input
+          <InputSelect
             name='countrycode'
-            label='Country Code'
+            label='Country'
             {...register('countrycode', { required: 'Country Code field is required.' })}
+            options={countryCode}
             error={fieldErrors?.state}
             disabled={loading}
           />

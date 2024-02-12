@@ -57,7 +57,7 @@ const login = (state = {
 const table = (state = {
   selectedIds: [],
   page: 0,
-  pageSize: 100,
+  pageSize: 10000,
   totalTableRows: null
 }, action) => {
   switch(action.type) {
