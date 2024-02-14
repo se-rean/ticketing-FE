@@ -9,7 +9,7 @@ const CheckAuth = ({ children }) => {
 
   const authorized = () => {
     navigate;
-    UNAUTH_ROUTES.includes(window.location.pathname) && navigate('/admin');
+    UNAUTH_ROUTES.includes(window.location.pathname) && navigate('/admin/events');
   };
 
   useEffect(() => {

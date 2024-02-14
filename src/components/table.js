@@ -124,7 +124,7 @@ const RenderRows = ({ row, header, rowActions, navigate }) => {
             cursor: 'pointer',
             textDecoration: 'underline'
           }}
-          onClick={() => navigate(`/admin/tickets/performance-details/${row[header.rowId]}`)}
+          onClick={() => navigate(`/admin/events/performance-details/${row[header.rowId]}`)}
         >
           {row[header.rowId]}
         </span>

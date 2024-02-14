@@ -22,7 +22,7 @@ const BreadCrumbsUrls = ({ pathname, params }) => {
       ]
     },
     {
-      pathname: '/admin/tickets',
+      pathname: '/admin/events',
       link: [
         {
           label: 'Dashboard',
@@ -30,14 +30,14 @@ const BreadCrumbsUrls = ({ pathname, params }) => {
           to: '/admin'
         },
         {
-          label: 'Tickets',
+          label: 'events',
           icon: <ConfirmationNumber fontSize='inherit'/>,
           active: true
         }
       ]
     },
     {
-      pathname: '/admin/tickets/create-event',
+      pathname: '/admin/events/create-event',
       link: [
         {
           label: 'Dashboard',
@@ -45,9 +45,9 @@ const BreadCrumbsUrls = ({ pathname, params }) => {
           to: '/admin'
         },
         {
-          label: 'Tickets',
+          label: 'Events',
           icon: <ConfirmationNumber fontSize='inherit'/>,
-          to: '/admin/tickets'
+          to: '/admin/events'
         },
         {
           label: 'Event',
@@ -57,7 +57,7 @@ const BreadCrumbsUrls = ({ pathname, params }) => {
       ]
     },
     {
-      pathname: `/admin/tickets/performance-details/${performanceCode}`,
+      pathname: `/admin/events/performance-details/${performanceCode}`,
       link: [
         {
           label: 'Dashboard',
@@ -65,9 +65,9 @@ const BreadCrumbsUrls = ({ pathname, params }) => {
           to: '/admin'
         },
         {
-          label: 'Tickets',
+          label: 'Events',
           icon: <ConfirmationNumber fontSize='inherit'/>,
-          to: '/admin/tickets'
+          to: '/admin/events'
         },
         {
           label: 'Performance Details',

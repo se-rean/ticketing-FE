@@ -38,15 +38,15 @@ const AppRoutes = () => {
       page: <DashboardPage/>
     },
     {
-      path: '/admin/tickets',
+      path: '/admin/events',
       page: <TicketsPage/>
     },
     {
-      path: '/admin/tickets/create-event',
+      path: '/admin/events/create-event',
       page: <CreateEventPage/>
     },
     {
-      path: '/admin/tickets/performance-details/:performanceCode',
+      path: '/admin/events/performance-details/:performanceCode',
       page: <PerformanceDetailsPage/>
     }
   ];

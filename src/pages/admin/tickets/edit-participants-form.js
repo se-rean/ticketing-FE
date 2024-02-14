@@ -40,6 +40,9 @@ const EditParticipantsForm = ({
   };
 
   const onSubmit = async data => {
+
+    data.area = data.area.split('-')[0];
+
     const payload = {
       participantId: selectedRow.id,
       data
@@ -54,17 +57,27 @@ const EditParticipantsForm = ({
   const handleQuantityChange = (e) => {
     const amount = performanceDetails.event_pricing.find(i => i.performance_code === selectedRow.performance_code)?.amount || 0;
     setValue('totalAmount', e.target.value * amount);
+    setValue('totalAmount', e.target.value * amount);
   };
 
-  const sectionsOptions = uniqBy(performanceDetails.event_pricing, 'section').map(i => ({
-    label: i.section,
-    value: i.section
+  var typeCodeOptions = [];
+
+  const handleAreaChange = (e) => {
+    const [area, typeCode] = e.target.value.split('-');
+
+    const amount = performanceDetails.event_pricing.find(i => i.section === area && i.type_code === typeCode)?.amount || 0;
+
+    setValue('totalAmount', selectedRow.quantity * amount);
+    setValue('pricetype_code', typeCode);
+    setValue('area', area);
+    setValue('quantity', selectedRow.quantity);
+  };
+
+  const sectionsOptions = performanceDetails.event_pricing.map(i => ({
+    label: `${i.section}-${i.type_code}`,
+    value: `${i.section}-${i.type_code}`
   }));
 
-  const typeCodeOptions = uniqBy(performanceDetails.event_pricing, 'section').map(i => ({
-    label: i.type_code,
-    value: i.type_code
-  }));
 
   return <>
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -189,10 +202,11 @@ const EditParticipantsForm = ({
         </Grid>
 
         <Grid item xs={12} md={6} lg={4} xl={4}>
-          <Input
+          <InputSelect
             name='nationality'
             label='Nationality'
             {...register('nationality', { required: 'Nationality field is required.' })}
+            options={countryCodes}
             defaultValue={selectedRow && selectedRow.nationality}
             error={fieldErrors?.nationality}
             disabled={loading}
@@ -264,6 +278,7 @@ const EditParticipantsForm = ({
             options={sectionsOptions}
             defaultValue={selectedRow && selectedRow.area}
             error={fieldErrors?.area}
+            onChange={(e) => handleAreaChange(e)}
             disabled={loading}
           />
         </Grid>
@@ -281,14 +296,15 @@ const EditParticipantsForm = ({
         </Grid>
 
         <Grid item xs={12} md={2} lg={2} xl={2}>
-          <InputSelect
+          <Input
             name='pricetype_code'
             label='Price Type Code'
             {...register('pricetype_code', { required: 'Price type code field is required.' })}
             options={typeCodeOptions}
-            defaultValue={selectedRow && selectedRow.pricetype_code}
+            onChange={() => alert('asdasd')}
+            // defaultValue={selectedRow && selectedRow.pricetype_code}
             error={fieldErrors?.pricetype_code}
-            disabled={loading}
+            disabled={true}
           />
         </Grid>
 
@@ -297,9 +313,9 @@ const EditParticipantsForm = ({
             name='totalAmount'
             label='Amount'
             {...register('totalAmount', { required: 'Amount field is required.' })}
-            defaultValue={selectedRow && (selectedRow.quantity * selectedRow.amount)}
+            // defaultValue={selectedRow && (selectedRow.quantity * selectedRow.amount)}
             error={fieldErrors?.totalAmount}
-            disabled={loading}
+            disabled={true}
           />
         </Grid>
 

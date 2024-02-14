@@ -121,7 +121,7 @@ const TicketsPage = () => {
       <Button
         startIcon={<Add/>}
         label='Add Event'
-        onClick={() => navigate('/admin/tickets/create-event')}
+        onClick={() => navigate('/admin/events/create-event')}
       />
     </Box>
 

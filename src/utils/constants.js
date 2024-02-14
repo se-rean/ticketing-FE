@@ -10,6 +10,11 @@ export const TICKETING_TABLE_HEADERS = [
     type: 'text'
   },
   {
+    rowId: 'type',
+    label: 'Attendee Type',
+    type: 'text'
+  },
+  {
     rowId: 'area',
     label: 'Area',
     type: 'text'

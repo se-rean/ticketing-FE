@@ -49,7 +49,7 @@ const CreateEventPage = () => {
     dispatch(createEventAction(data))
       .then(({ payload: { data: { is_success: isSuccess } } }) => {
         if (isSuccess) {
-          navigate(`/admin/tickets/performance-details/${data.performanceCode}`);
+          navigate(`/admin/events/performance-details/${data.performanceCode}`);
           reset();
         }
       });

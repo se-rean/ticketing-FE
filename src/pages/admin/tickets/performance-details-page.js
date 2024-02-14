@@ -629,47 +629,44 @@ const PerformanceDetailsPage = () => {
                           </Box>
 
                           <Box>
-                            <Tooltip title='Generate Barcode'>
-                              <IconButton onClick={(e) => handleConfirm(e, 'Generate Barcode')} disabled={isEmpty(participants)}>
-                                <QrCode/>
-                              </IconButton>
-                            </Tooltip>
+                            {
+                              (performanceDetails.status == 'Pending For Barcode Generation') && (
+                                <><Tooltip title='Generate Barcode'>
+                                  <IconButton onClick={(e) => handleConfirm(e, 'Generate Barcode')} disabled={isEmpty(participants)}>
+                                    <QrCode />
+                                  </IconButton>
+                                </Tooltip><Tooltip title='Process Refund'>
+                                  <IconButton color='warning' onClick={(e) => handleConfirm(e, 'Refund')} disabled={selectedTableIds.length === 0}>
+                                    <Replay />
+                                  </IconButton>
+                                </Tooltip><Tooltip title='Import Excel'>
+                                  <IconButton color='success' component="label">
+                                    <Upload />
 
-                            <Tooltip title='Process Refund'>
-                              <IconButton color='warning' onClick={(e) => handleConfirm(e, 'Refund')} disabled={selectedTableIds.length === 0}>
-                                <Replay/>
+                                    <input
+                                      id='import-input'
+                                      type='file'
+                                      hidden
+                                      accept='application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, .csv,'
+                                      onChange={handleUploadFile} />
+                                  </IconButton>
+                                </Tooltip><Tooltip title='Add Participants'>
+                                  <IconButton color='primary' onClick={() => setIsAddFormOpen(!isAddFormOpen)}>
+                                    <Add />
+                                  </IconButton>
+                                </Tooltip></>
+                              )
+                            }
+
+                            <Tooltip title='Create New Event'>
+                              <IconButton color='primary' onClick={() => navigate('/admin/events/create-event')}>
+                                <Event/>
                               </IconButton>
                             </Tooltip>
 
                             <Tooltip title='Export to Excel'>
                               <IconButton color='success' onClick={(e) => handleConfirm(e, 'Export to Excel')} disabled={isEmpty(participants)}>
                                 <Download/>
-                              </IconButton>
-                            </Tooltip>
-
-                            <Tooltip title='Import Excel'>
-                              <IconButton color='success' component="label">
-                                <Upload/>
-
-                                <input
-                                  id='import-input'
-                                  type='file'
-                                  hidden
-                                  accept='application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, .csv,'
-                                  onChange={handleUploadFile}
-                                />
-                              </IconButton>
-                            </Tooltip>
-
-                            <Tooltip title='Add Participants'>
-                              <IconButton color='primary' onClick={() => setIsAddFormOpen(!isAddFormOpen)}>
-                                <Add/>
-                              </IconButton>
-                            </Tooltip>
-
-                            <Tooltip title='Create New Event'>
-                              <IconButton color='primary' onClick={() => navigate('/admin/tickets/create-event')}>
-                                <Event/>
                               </IconButton>
                             </Tooltip>
                           </Box>
@@ -684,7 +681,7 @@ const PerformanceDetailsPage = () => {
                           }}
                         >
                           {
-                            ['pending', 'failed'].includes(row.status) && (
+                            ['pending', 'failed'].includes(row.status) && (performanceDetails.status == 'Pending For Barcode Generation') && (
                               <>
                                 <IconButton color='info' onClick={(e) => handleEdit(e, row)}>
                                   <Edit />

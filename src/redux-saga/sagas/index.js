@@ -52,7 +52,7 @@ function* watchLoginSuccess() {
       sessionStorage.setItem('token', accessToken);
       sessionStorage.setItem('refreshToken', refreshToken);
       sessionStorage.setItem('user', JSON.stringify(data));
-      window.location.replace('/admin');
+      window.location.replace('/admin/events');
     }
   });
 }
