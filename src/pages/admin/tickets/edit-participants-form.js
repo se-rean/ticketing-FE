@@ -209,7 +209,6 @@ const EditParticipantsForm = ({
             options={countryCodes}
             defaultValue={selectedRow && selectedRow.nationality}
             error={fieldErrors?.nationality}
-            onChange={(e) => setValue('internationalcode', e.target.value)}
             disabled={loading}
           />
         </Grid>
@@ -221,7 +220,7 @@ const EditParticipantsForm = ({
             {...register('internationalcode', { required: 'International code field is required.' })}
             defaultValue={selectedRow && selectedRow.internationalcode}
             error={fieldErrors?.internationalcode}
-            disabled={true}
+            disabled={loading}
           />
         </Grid>
 
@@ -274,7 +273,7 @@ const EditParticipantsForm = ({
         <Grid item xs={12} md={2} lg={2} xl={2}>
           <InputSelect
             name='area'
-            label='Area'
+            label='Update Price Category'
             {...register('area', { required: 'Area field is required.' })}
             options={sectionsOptions}
             defaultValue={selectedRow && selectedRow.area}
@@ -284,15 +283,16 @@ const EditParticipantsForm = ({
           />
         </Grid>
 
+
         <Grid item xs={12} md={2} lg={2} xl={2}>
           <Input
-            name='quantity'
-            label='Quantity'
-            {...register('quantity', { required: 'Quantity field is required.' })}
-            defaultValue={selectedRow && selectedRow.quantity}
-            error={fieldErrors?.quantity}
-            disabled={loading}
-            onChange={(e) => handleQuantityChange(e)}
+            name='area'
+            label='area'
+            {...register('area', { required: 'area field is required.' })}
+            options={typeCodeOptions}
+            defaultValue={selectedRow && selectedRow.area}
+            error={fieldErrors?.area}
+            disabled={true}
           />
         </Grid>
 
@@ -300,10 +300,9 @@ const EditParticipantsForm = ({
           <Input
             name='pricetype_code'
             label='Price Type Code'
-            {...register('pricetype_code', { required: 'Price type code field is required.' })}
+            {...register('pricetype_code', { })}
             options={typeCodeOptions}
-            onChange={() => alert('asdasd')}
-            // defaultValue={selectedRow && selectedRow.pricetype_code}
+            defaultValue={selectedRow && selectedRow.pricetype_code}
             error={fieldErrors?.pricetype_code}
             disabled={true}
           />
@@ -311,10 +310,22 @@ const EditParticipantsForm = ({
 
         <Grid item xs={12} md={2} lg={2} xl={2}>
           <Input
+            name='quantity'
+            label='Quantity'
+            {...register('quantity', { })}
+            defaultValue={selectedRow && selectedRow.quantity}
+            error={fieldErrors?.quantity}
+            disabled={true}
+            onChange={(e) => handleQuantityChange(e)}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={2} lg={2} xl={2}>
+          <Input
             name='totalAmount'
             label='Amount'
-            {...register('totalAmount', { required: 'Amount field is required.' })}
-            // defaultValue={selectedRow && (selectedRow.quantity * selectedRow.amount)}
+            {...register('totalAmount', { })}
+            defaultValue={selectedRow && selectedRow.total_amount}
             error={fieldErrors?.totalAmount}
             disabled={true}
           />
