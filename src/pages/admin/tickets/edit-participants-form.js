@@ -209,6 +209,7 @@ const EditParticipantsForm = ({
             options={countryCodes}
             defaultValue={selectedRow && selectedRow.nationality}
             error={fieldErrors?.nationality}
+            onChange={(e) => setValue('internationalcode', e.target.value)}
             disabled={loading}
           />
         </Grid>
@@ -220,7 +221,7 @@ const EditParticipantsForm = ({
             {...register('internationalcode', { required: 'International code field is required.' })}
             defaultValue={selectedRow && selectedRow.internationalcode}
             error={fieldErrors?.internationalcode}
-            disabled={loading}
+            disabled={true}
           />
         </Grid>
 
