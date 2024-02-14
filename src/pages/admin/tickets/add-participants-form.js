@@ -63,7 +63,7 @@ const AddParticipantsForm = ({
         area: i.section,
         code: i.type_code,
         amount: i.amount,
-        count: i.capacity
+        count: 0
       }));
 
       setValue('categories', eventPricing);
