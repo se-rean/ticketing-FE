@@ -721,7 +721,8 @@ const PerformanceDetailsPage = () => {
                       fetchParticipants,
                       loading,
                       dispatch,
-                      selectedRow
+                      selectedRow,
+                      performanceDetails
                     }}/>
                   )}
 
@@ -734,7 +735,7 @@ const PerformanceDetailsPage = () => {
                     }
                   }}>
                     <Box sx={{ mb: 2 }}>
-                  Are you sure you want to {confirmMode}?
+                      Are you sure you want to {confirmMode}?
                     </Box>
 
                     <Box

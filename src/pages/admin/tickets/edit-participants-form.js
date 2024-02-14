@@ -1,10 +1,10 @@
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { emailOnly } from '../../../utils/regex';
 import { numbersOnlyKeyPress } from '../../../helpers';
-import countryCode from '../../../utils/countryCode.json';
+import { countryCodes } from '../../../utils/constants';
 import {
   Grid,
   Box
@@ -14,6 +14,7 @@ import Button from '../../../components/button';
 import moment from 'moment';
 import { updateParticipantsAction } from '../../../redux-saga/actions';
 import InputSelect from '../../../components/input-select';
+import { uniqBy } from 'lodash';
 
 const EditParticipantsForm = ({
   performanceCode,
@@ -22,7 +23,8 @@ const EditParticipantsForm = ({
   fetchParticipants,
   loading,
   dispatch,
-  selectedRow
+  selectedRow,
+  performanceDetails
 }) => {
   const {
     register,
@@ -49,33 +51,20 @@ const EditParticipantsForm = ({
     });
   };
 
-  useEffect(() => {
-    if (selectedRow) {
-      setValue('salutation', selectedRow.salutation);
-      setValue('firstname', selectedRow.firstname);
-      setValue('lastname', selectedRow.lastname);
-      const parsedDate = moment(selectedRow.dateofbirth).format('YYYY-MM-DD');
-      setValue('dateofbirth', parsedDate);
-      setValue('email', selectedRow.email);
-      setValue('phonenumber', selectedRow.phonenumber);
-      setValue('city', selectedRow.city);
-      setValue('state', selectedRow.state);
-      setValue('countrycode', selectedRow.countrycode);
-      setValue('address_line_1', selectedRow.address_line_1);
-      setValue('nationality', selectedRow.nationality);
-      setValue('internationalcode', selectedRow.internationalcode);
-      setValue('areacode', selectedRow.areacode);
-      setValue('job_title', selectedRow.job_title);
-      setValue('company_name', selectedRow.company_name);
-      setValue('type', selectedRow.type);
-      setValue('area', selectedRow.area);
-      setValue('pricetype_code', selectedRow.pricetype_code);
-      setValue('quantity', selectedRow.quantity);
-      setValue('totalAmount', selectedRow.total_amount);
-      setValue('qualifier_code', selectedRow.qualifier_code);
-      setValue('offer_code', selectedRow.offer_code);
-    }
-  }, []);
+  const handleQuantityChange = (e) => {
+    const amount = performanceDetails.event_pricing.find(i => i.performance_code === selectedRow.performance_code)?.amount || 0;
+    setValue('totalAmount', e.target.value * amount);
+  };
+
+  const sectionsOptions = uniqBy(performanceDetails.event_pricing, 'section').map(i => ({
+    label: i.section,
+    value: i.section
+  }));
+
+  const typeCodeOptions = uniqBy(performanceDetails.event_pricing, 'section').map(i => ({
+    label: i.type_code,
+    value: i.type_code
+  }));
 
   return <>
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -85,6 +74,7 @@ const EditParticipantsForm = ({
             name='salutation'
             label='Salutation'
             {...register('salutation', { required: 'Salutation field is required.' })}
+            defaultValue={selectedRow && selectedRow.salutation}
             error={fieldErrors?.salutation}
             disabled={loading}
           />
@@ -95,6 +85,7 @@ const EditParticipantsForm = ({
             name='firstname'
             label='First Name'
             {...register('firstname', { required: 'First Name field is required.' })}
+            defaultValue={selectedRow && selectedRow.firstname}
             error={fieldErrors?.firstname}
             disabled={loading}
           />
@@ -105,6 +96,7 @@ const EditParticipantsForm = ({
             name='lastname'
             label='Last Name'
             {...register('lastname', { required: 'Last Name field is required.' })}
+            defaultValue={selectedRow && selectedRow.lastname}
             error={fieldErrors?.lastname}
             disabled={loading}
           />
@@ -116,6 +108,7 @@ const EditParticipantsForm = ({
             name='dateofbirth'
             label='Date of Birth'
             {...register('dateofbirth', { required: 'Date of Birth field is required.' })}
+            defaultValue={selectedRow && moment(selectedRow.dateofbirth).format('YYYY-MM-DD')}
             error={fieldErrors?.dateofbirth}
             disabled={loading}
           />
@@ -132,6 +125,7 @@ const EditParticipantsForm = ({
                 message: 'Incorrect email address format.'
               }
             })}
+            defaultValue={selectedRow && selectedRow.email}
             error={fieldErrors?.email}
             disabled={loading}
           />
@@ -143,6 +137,7 @@ const EditParticipantsForm = ({
             label='Phone number'
             {...register('phonenumber', { required: 'Phone number field is required.' })}
             onKeyPress={numbersOnlyKeyPress}
+            defaultValue={selectedRow && selectedRow.phonenumber}
             error={fieldErrors?.phonenumber}
             disabled={loading}
           />
@@ -153,6 +148,7 @@ const EditParticipantsForm = ({
             name='city'
             label='City'
             {...register('city', { required: 'City field is required.' })}
+            defaultValue={selectedRow && selectedRow.city}
             error={fieldErrors?.city}
             disabled={loading}
           />
@@ -163,6 +159,7 @@ const EditParticipantsForm = ({
             name='state'
             label='State'
             {...register('state', { required: 'State field is required.' })}
+            defaultValue={selectedRow && selectedRow.state}
             error={fieldErrors?.state}
             disabled={loading}
           />
@@ -173,8 +170,9 @@ const EditParticipantsForm = ({
             name='countrycode'
             label='Country'
             {...register('countrycode', { required: 'Country Code field is required.' })}
-            options={countryCode}
-            error={fieldErrors?.state}
+            options={countryCodes}
+            defaultValue={selectedRow && selectedRow.countrycode}
+            error={fieldErrors?.countrycode}
             disabled={loading}
           />
         </Grid>
@@ -184,6 +182,7 @@ const EditParticipantsForm = ({
             name='address_line_1'
             label='Adress'
             {...register('address_line_1', { required: 'Address field is required.' })}
+            defaultValue={selectedRow && selectedRow.address_line_1}
             error={fieldErrors?.address_line_1}
             disabled={loading}
           />
@@ -194,6 +193,7 @@ const EditParticipantsForm = ({
             name='nationality'
             label='Nationality'
             {...register('nationality', { required: 'Nationality field is required.' })}
+            defaultValue={selectedRow && selectedRow.nationality}
             error={fieldErrors?.nationality}
             disabled={loading}
           />
@@ -204,6 +204,7 @@ const EditParticipantsForm = ({
             name='internationalcode'
             label='International Code'
             {...register('internationalcode', { required: 'International code field is required.' })}
+            defaultValue={selectedRow && selectedRow.internationalcode}
             error={fieldErrors?.internationalcode}
             disabled={loading}
           />
@@ -214,6 +215,7 @@ const EditParticipantsForm = ({
             name='areacode'
             label='Area Code'
             {...register('areacode', { required: 'Area code field is required.' })}
+            defaultValue={selectedRow && selectedRow.areacode}
             error={fieldErrors?.areacode}
             disabled={loading}
           />
@@ -224,6 +226,7 @@ const EditParticipantsForm = ({
             name='job_title'
             label='Job Title'
             {...register('job_title', { required: 'Job title field is required.' })}
+            defaultValue={selectedRow && selectedRow.job_title}
             error={fieldErrors?.job_title}
             disabled={loading}
           />
@@ -234,6 +237,7 @@ const EditParticipantsForm = ({
             name='company_name'
             label='Company Name'
             {...register('company_name', { required: 'Company name field is required.' })}
+            defaultValue={selectedRow && selectedRow.company_name}
             error={fieldErrors?.company_name}
             disabled={loading}
           />
@@ -244,6 +248,7 @@ const EditParticipantsForm = ({
             name='type'
             label='Company Type'
             {...register('type', { required: 'Company type field is required.' })}
+            defaultValue={selectedRow && selectedRow.type}
             error={fieldErrors?.type}
             disabled={loading}
           />
@@ -252,11 +257,14 @@ const EditParticipantsForm = ({
 
       <Grid container spacing={2}>
         <Grid item xs={12} md={2} lg={2} xl={2}>
-          <Input
+          <InputSelect
             name='area'
             label='Area'
             {...register('area', { required: 'Area field is required.' })}
+            options={sectionsOptions}
+            defaultValue={selectedRow && selectedRow.area}
             error={fieldErrors?.area}
+            disabled={loading}
           />
         </Grid>
 
@@ -265,17 +273,22 @@ const EditParticipantsForm = ({
             name='quantity'
             label='Quantity'
             {...register('quantity', { required: 'Quantity field is required.' })}
+            defaultValue={selectedRow && selectedRow.quantity}
             error={fieldErrors?.quantity}
             disabled={loading}
+            onChange={(e) => handleQuantityChange(e)}
           />
         </Grid>
 
         <Grid item xs={12} md={2} lg={2} xl={2}>
-          <Input
+          <InputSelect
             name='pricetype_code'
             label='Price Type Code'
             {...register('pricetype_code', { required: 'Price type code field is required.' })}
+            options={typeCodeOptions}
+            defaultValue={selectedRow && selectedRow.pricetype_code}
             error={fieldErrors?.pricetype_code}
+            disabled={loading}
           />
         </Grid>
 
@@ -284,29 +297,11 @@ const EditParticipantsForm = ({
             name='totalAmount'
             label='Amount'
             {...register('totalAmount', { required: 'Amount field is required.' })}
-            error={fieldErrors?.amount}
+            defaultValue={selectedRow && (selectedRow.quantity * selectedRow.amount)}
+            error={fieldErrors?.totalAmount}
+            disabled={loading}
           />
         </Grid>
-
-        {/* <Grid item xs={12} md={6} lg={6} xl={6}>
-          <Input
-            name='qualifier_code'
-            label='Qualifier Code'
-            {...register('qualifier_code', { required: 'Qualifier code field is required.' })}
-            error={fieldErrors?.qualifier_code}
-            disabled
-          />
-        </Grid>
-
-        <Grid item xs={12} md={6} lg={6} xl={6}>
-          <Input
-            name='offer_code'
-            label='Offer Code'
-            {...register('offer_code', { required: 'Offer code field is required.' })}
-            error={fieldErrors?.qualifier_code}
-            disabled
-          />
-        </Grid> */}
 
         <Grid item xs={12}>
           <Box

@@ -19,7 +19,8 @@ import {
   GET_PARTICIPANTS,
   CREATE_PARTICIPANTS_BARCODE,
   GET_EVENTS,
-  SET_EVENTS
+  SET_EVENTS,
+  UPDATE_EVENTS
 } from '../action-types';
 
 const login = (state = {
@@ -116,6 +117,24 @@ const ticket = (state = {
         message: action.payload.data.message
       };
     case appendFailed(CREATE_EVENT):
+      return {
+        ...state,
+        loading: false
+      };
+    case appendRequest(UPDATE_EVENTS):
+      return {
+        ...state,
+        loading: true
+      };
+    case appendSuccess(UPDATE_EVENTS):
+      return {
+        ...state,
+        loading: false,
+        errors: action.payload.data.errors,
+        createEventSuccess: action.payload.data.is_success,
+        message: action.payload.data.message
+      };
+    case appendFailed(UPDATE_EVENTS):
       return {
         ...state,
         loading: false

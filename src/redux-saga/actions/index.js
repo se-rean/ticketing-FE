@@ -17,7 +17,8 @@ import {
   REFUND_PARTICIPANTS,
   DELETE_PARTICIPANTS,
   CREATE_RANDOM_PARTICIPANTS,
-  UPDATE_PARTICIPANTS
+  UPDATE_PARTICIPANTS,
+  UPDATE_EVENTS
 } from '../action-types';
 
 export const loginAction = (payload) => ({
@@ -177,6 +178,17 @@ export const updateParticipantsAction = (payload) => ({
     request: {
       method: 'PUT',
       url: `v1/Ticketing/participants/?id=${payload.participantId}`,
+      data: payload.data
+    }
+  }
+});
+
+export const updateEventsAction = (payload) => ({
+  types: setTypes(UPDATE_EVENTS),
+  payload: {
+    request: {
+      method: 'PUT',
+      url: `v1/Ticketing/update-event/?PCODE=${payload.performanceCode}`,
       data: payload.data
     }
   }

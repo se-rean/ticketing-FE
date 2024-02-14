@@ -11,7 +11,8 @@ import {
 import { createSelector } from 'reselect';
 import {
   getEventsAction,
-  setEventsAction
+  setTableSelectedIdsAction,
+  updateEventsAction
 } from '../../../redux-saga/actions';
 import { TICKETING_EVENTS_TABLE_HEADERS } from '../../../utils/constants';
 import { useNavigate } from 'react-router-dom';
@@ -19,11 +20,16 @@ import {
   debounce, isEmpty
 } from 'lodash';
 
-import { Add } from '@mui/icons-material';
-import { Box } from '@mui/material';
+import {
+  Add, CheckCircleOutline, DoDisturb, Launch
+} from '@mui/icons-material';
+import {
+  Box, IconButton, Tooltip
+} from '@mui/material';
 import Button from '../../../components/button';
 import Table from '../../../components/table';
 import Input from '../../../components/input';
+import Modal from '../../../components/modal';
 
 const stateSelectors = createSelector(
   state => state.ticket,
@@ -35,6 +41,9 @@ const stateSelectors = createSelector(
 
 const TicketsPage = () => {
   const [searchInputValue, setSearchInputValue] = useState('');
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [confirmMode, setConfirmMode] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(false);
   const searchInputRef = useRef(null);
 
   const dispatch = useDispatch();
@@ -58,6 +67,49 @@ const TicketsPage = () => {
 
   const handleSearchChange = (value) => {
     debouncedHandleInputChange(value);
+  };
+
+  const handleConfirm = (event, mode, row = null) => {
+    event.stopPropagation();
+    setIsConfirmOpen(!isConfirmOpen);
+    setConfirmMode(mode);
+    if (!isEmpty(row)) {
+      setSelectedRow(row);
+      dispatch(setTableSelectedIdsAction([]));
+      dispatch(setTableSelectedIdsAction([row.id]));
+    }
+  };
+
+  const handleUpdateStatus = () => {
+    let status;
+    const performanceCode = selectedRow.performance_code;
+    switch(confirmMode) {
+      case 'Complete':
+        status = 2;
+        break;
+      case 'Reopen':
+        status = 1;
+        break;
+      case 'Cancel':
+        status = 3;
+        break;
+      default:
+        return;
+    }
+
+    const payload = {
+      performanceCode,
+      data: { status }
+    };
+
+    dispatch(updateEventsAction(payload)).then(() => {
+      dispatch(getEventsAction());
+    });
+  };
+
+  const handleYes = () => {
+    handleUpdateStatus();
+    setIsConfirmOpen(!isConfirmOpen);
   };
 
   useEffect(() => {
@@ -98,9 +150,64 @@ const TicketsPage = () => {
             </Box>
           </Box>
         ),
+        rowActions: (row) => (
+          <>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'start',
+                gap: 2
+              }}
+            >
+              <Tooltip title='Complete'>
+                <IconButton color='success' onClick={(e) => handleConfirm(e, 'Complete', row)}>
+                  <CheckCircleOutline/>
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title='Reopen'>
+                <IconButton color='warning' onClick={(e) => handleConfirm(e, 'Reopen', row)}>
+                  <Launch/>
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title='Cancel'>
+                <IconButton color='error' onClick={(e) => handleConfirm(e, 'Cancel', row)}>
+                  <DoDisturb/>
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </>
+        ),
         rows: events,
         hasSelectMultiple: false
       }}/>
+
+
+      <Modal {...{
+        title: confirmMode,
+        isOpen: isConfirmOpen,
+        handleClose: () => {
+          setIsConfirmOpen(false);
+          dispatch(setTableSelectedIdsAction([]));
+        }
+      }}>
+        <Box sx={{ mb: 2 }}>
+          Are you sure you want to update status to {confirmMode}?
+        </Box>
+
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'end',
+            gap: 1
+          }}
+        >
+          <Button variant='label' label='No' onClick={() => setIsConfirmOpen(false)}/>
+
+          <Button variant='label' label='Yes' onClick={() => handleYes()}/>
+        </Box>
+      </Modal>
     </Box>
   </>;
 };
