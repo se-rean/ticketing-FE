@@ -50,7 +50,7 @@ const TicketsPage = () => {
     dispatch(getEventsAction({ search: value }));
 
     setTimeout(() => {
-      searchInputRef.current.focus();
+      searchInputRef.current?.focus();
     }, 100);
   };
 

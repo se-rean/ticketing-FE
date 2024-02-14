@@ -91,7 +91,7 @@ const PerformanceDetailsPage = () => {
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(false);
-  const [statusInputValue, setStatusInputValue] = useState('pending');
+  const [statusInputValue, setStatusInputValue] = useState('All Status');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -610,6 +610,9 @@ const PerformanceDetailsPage = () => {
                               sx={{ width: 208 }}
                               label='Filter Status'
                               options={[
+                                {
+                                  label: 'All Status', value: 'All Status'
+                                },
                                 {
                                   label: 'Pending', value: 'pending'
                                 },

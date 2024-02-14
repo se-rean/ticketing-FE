@@ -62,10 +62,19 @@ function* watchGetParticipantsSuccess() {
     const { is_success: isSuccess, data } = response;
 
     if (isSuccess) {
-      const mappedData = data.map(i => ({
-        ...i,
-        fullName: `${i.firstname} ${i.lastname}`
-      })).filter(i => i.status === statusValue);
+      let mappedData;
+
+      if (statusValue === 'All Status') {
+        mappedData = data.map(i => ({
+          ...i,
+          fullName: `${i.firstname} ${i.lastname}`
+        }));
+      } else {
+        mappedData = data.map(i => ({
+          ...i,
+          fullName: `${i.firstname} ${i.lastname}`
+        })).filter(i => i.status === statusValue);
+      }
 
       yield put(setParticipantsDataAction(mappedData));
     }
