@@ -45,7 +45,7 @@ export const TICKETING_EVENTS_TABLE_HEADERS = [
   {
     rowId: 'performance_code',
     label: 'Performance Code',
-    type: 'text'
+    type: 'link'
   },
   {
     rowId: 'status',
@@ -72,6 +72,6 @@ export const eventStatus = {
 
 export const participantsStatus = {
   SOLD: 'SOLD',
-  REFUNDED: 'REFUNEDED',
+  REFUNDED: 'REFUNDED',
   PENDING: 'PENDING'
 };

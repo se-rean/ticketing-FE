@@ -49,13 +49,15 @@ export const setTablePageSizeAction = (payload) => ({
 export const getParticipantsAction = ({
   performanceCode,
   page,
-  pageSize
+  pageSize,
+  status
 }) => ({
   types: setTypes(GET_PARTICIPANTS),
   payload: {
     request: {
       method: 'GET',
-      url: `v1/Ticketing/participants/${performanceCode}?page=${page}&page_size=${pageSize}`
+      url: `v1/Ticketing/participants/${performanceCode}?page=${page}&page_size=${pageSize}`,
+      status
     }
   }
 });
@@ -121,12 +123,13 @@ export const createParticipantsBarcodeAction = (payload) => ({
   }
 });
 
-export const getEventsAction = () => ({
+export const getEventsAction = (payload) => ({
   types: setTypes(GET_EVENTS),
   payload: {
     request: {
       method: 'GET',
-      url: 'v1/Ticketing/events'
+      url: 'v1/Ticketing/events',
+      search: payload?.search || ''
     }
   }
 });

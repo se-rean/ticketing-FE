@@ -58,14 +58,14 @@ function* watchLoginSuccess() {
 }
 
 function* watchGetParticipantsSuccess() {
-  yield takeEvery([ appendSuccess(GET_PARTICIPANTS) ], function* fn({ payload: { data: response } }) {
+  yield takeEvery([ appendSuccess(GET_PARTICIPANTS) ], function* fn({ payload: { data: response, config: { status: statusValue } } }) {
     const { is_success: isSuccess, data } = response;
 
     if (isSuccess) {
       const mappedData = data.map(i => ({
         ...i,
         fullName: `${i.firstname} ${i.lastname}`
-      }));
+      })).filter(i => i.status === statusValue);
 
       yield put(setParticipantsDataAction(mappedData));
     }
@@ -86,14 +86,18 @@ function* getPerformanceDetailsSuccess() {
 }
 
 function* getEventsSuccess() {
-  yield takeEvery(appendSuccess(GET_EVENTS), function* fn({ payload: { data: response } }) {
+  yield takeEvery(appendSuccess(GET_EVENTS), function* fn({ payload: { data: response, config: { search: searchValue } } }) {
     const {
       data,
       is_success: isSuccess
     } = response;
 
     if (isSuccess) {
-      yield put(setEventsAction(data));
+      const filterData = data
+        .filter(i => i.performance_code.toLowerCase()
+          .includes(searchValue.toLowerCase()));
+
+      yield put(setEventsAction(filterData));
     }
   });
 }
@@ -155,7 +159,6 @@ function* updateParticipantsSuccess() {
     }
   });
 }
-
 
 export default function* rootSaga() {
   yield all([

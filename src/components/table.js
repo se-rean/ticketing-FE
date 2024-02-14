@@ -6,6 +6,7 @@ import {
 import { createSelector } from 'reselect';
 import Barcode from 'react-barcode';
 import { dateTime } from '../utils/date-formats';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Table as MUITable,
@@ -18,7 +19,8 @@ import {
   Checkbox,
   Box,
   Paper,
-  Tooltip
+  Tooltip,
+  Typography
 } from '@mui/material';
 import {
   setTablePageAction,
@@ -42,6 +44,7 @@ const stateSelectors = createSelector(
 const RenderTableHead = ({
   headers,
   headerActions,
+  hasSelectMultiple,
   onSelectAllClick,
   numSelected,
   rowCount
@@ -49,7 +52,7 @@ const RenderTableHead = ({
   return <>
     <TableHead>
       <TableRow>
-        {headerActions && (
+        {headerActions && hasSelectMultiple && (
           <TableCell
             padding='checkbox'
           >
@@ -79,10 +82,7 @@ const RenderTableHead = ({
   </>;
 };
 
-const RenderRows = ({ row, header, rowActions, link = false }) => {
-  if (link && header.rowId == 'performance_code') {
-    return <a href={`${window.location.origin}/admin/tickets/performance-details/${row[header.rowId]}`}>{row[header.rowId]}</a>;
-  }
+const RenderRows = ({ row, header, rowActions, navigate }) => {
   if (!row[header.rowId] && header.type !== 'actions') {
     if (header.type === 'status' && row.generate_barcode_api_respose != 'OK' && row.generate_barcode_api_respose != null ) {
       const color = row.generate_barcode_api_respose != 'OK' ? 'red' : 'white';
@@ -116,6 +116,20 @@ const RenderRows = ({ row, header, rowActions, link = false }) => {
     return <>
       {rowActions(row)}
     </>;
+  } else if (header.type === 'link') {
+    return <>
+      <Typography>
+        <span
+          style={{
+            cursor: 'pointer',
+            textDecoration: 'underline'
+          }}
+          onClick={() => navigate(`/admin/tickets/performance-details/${row[header.rowId]}`)}
+        >
+          {row[header.rowId]}
+        </span>
+      </Typography>
+    </>;
   } else {
     return row[header.rowId];
   }
@@ -127,11 +141,12 @@ const Table = ({
   rows = [],
   totalTableRows = null,
   headerActions = null,
+  hasSelectMultiple = true,
   rowActions = null,
-  loading = false,
-  link = false
+  loading = false
 }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const headers = [...tableHeaders];
 
@@ -197,15 +212,9 @@ const Table = ({
         ? (
           <>
             {headerActions && (
-              <Box
-                sx={{
-                  py: 1,
-                  display: 'flex',
-                  justifyContent: 'end'
-                }}
-              >
+              <>
                 {headerActions}
-              </Box>
+              </>
             )}
 
             <TableContainer>
@@ -220,15 +229,16 @@ const Table = ({
                   headerActions,
                   onSelectAllClick: handleSelectAllClick,
                   numSelected: selectedIds.length,
-                  rowCount: rows.length
+                  rowCount: rows.length,
+                  hasSelectMultiple
                 }}/>
 
                 <TableBody>
                   {rows.map((row, index) => (
                     <Fragment key={index}>
                       <TableRow
-                        hover={headerActions}
-                        onClick={(e) => headerActions
+                        hover={headerActions && hasSelectMultiple}
+                        onClick={(e) => headerActions && hasSelectMultiple
                           ? handleClick(e, row.id)
                           : null}
                         role="checkbox"
@@ -236,9 +246,9 @@ const Table = ({
                         tabIndex={-1}
                         key={row.id}
                         selected={isSelected(row.id)}
-                        sx={{ cursor: headerActions ? 'pointer' : '' }}
+                        sx={{ cursor: headerActions && hasSelectMultiple ? 'pointer' : '' }}
                       >
-                        {headerActions && (
+                        {headerActions && hasSelectMultiple && (
                           <TableCell padding="checkbox">
                             <Checkbox
                               color="primary"
@@ -255,7 +265,7 @@ const Table = ({
                                 row,
                                 header,
                                 rowActions,
-                                link
+                                navigate
                               }}/>
                             </TableCell>
                           </Fragment>

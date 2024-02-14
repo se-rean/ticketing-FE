@@ -53,6 +53,7 @@ import {
 import Table from '../../../components/table';
 import Loading from '../../../components/loading';
 import Modal from '../../../components/modal';
+import InputSelect from '../../../components/input-select';
 import Button from '../../../components/button';
 import AddParticipantsForm from './add-participants-form';
 
@@ -90,6 +91,7 @@ const PerformanceDetailsPage = () => {
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(false);
+  const [statusInputValue, setStatusInputValue] = useState('pending');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -110,7 +112,8 @@ const PerformanceDetailsPage = () => {
     dispatch(getParticipantsAction({
       performanceCode: performanceCode,
       page: page + 1,
-      pageSize
+      pageSize,
+      status: statusInputValue
     }));
   };
 
@@ -308,13 +311,17 @@ const PerformanceDetailsPage = () => {
     });
   };
 
+  const handleFilterStatusChange = (e) => {
+    setStatusInputValue(e.target.value);
+  };
+
   useEffect(() => {
     dispatch(getPerformanceDetailsAction(performanceCode));
   }, []);
 
   useEffect(() => {
     fetchParticipants();
-  }, [page, pageSize]);
+  }, [page, pageSize, statusInputValue]);
 
   return <>
     <Grid container spacing={4}>
@@ -589,51 +596,81 @@ const PerformanceDetailsPage = () => {
                       rows: participants,
                       totalTableRows,
                       headerActions: (
-                        <>
-                          <Tooltip title='Generate Barcode'>
-                            <IconButton onClick={(e) => handleConfirm(e, 'Generate Barcode')} disabled={isEmpty(participants)}>
-                              <QrCode/>
-                            </IconButton>
-                          </Tooltip>
+                        <Box
+                          sx={{
+                            py: 1,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            flexWrap: 'wrap',
+                            gap: 1
+                          }}
+                        >
+                          <Box>
+                            <InputSelect
+                              sx={{ width: 208 }}
+                              label='Filter Status'
+                              options={[
+                                {
+                                  label: 'Pending', value: 'pending'
+                                },
+                                {
+                                  label: 'Sold', value: 'sold'
+                                },
+                                {
+                                  label: 'Refunded', value: 'refunded'
+                                }
+                              ]}
+                              defaultValue={statusInputValue}
+                              onChange={handleFilterStatusChange}
+                            />
+                          </Box>
 
-                          <Tooltip title='Process Refund'>
-                            <IconButton color='warning' onClick={(e) => handleConfirm(e, 'Refund')} disabled={selectedTableIds.length === 0}>
-                              <Replay/>
-                            </IconButton>
-                          </Tooltip>
+                          <Box>
+                            <Tooltip title='Generate Barcode'>
+                              <IconButton onClick={(e) => handleConfirm(e, 'Generate Barcode')} disabled={isEmpty(participants)}>
+                                <QrCode/>
+                              </IconButton>
+                            </Tooltip>
 
-                          <Tooltip title='Export to Excel'>
-                            <IconButton color='success' onClick={(e) => handleConfirm(e, 'Export to Excel')} disabled={isEmpty(participants)}>
-                              <Download/>
-                            </IconButton>
-                          </Tooltip>
+                            <Tooltip title='Process Refund'>
+                              <IconButton color='warning' onClick={(e) => handleConfirm(e, 'Refund')} disabled={selectedTableIds.length === 0}>
+                                <Replay/>
+                              </IconButton>
+                            </Tooltip>
 
-                          <Tooltip title='Import Excel'>
-                            <IconButton color='success' component="label">
-                              <Upload/>
+                            <Tooltip title='Export to Excel'>
+                              <IconButton color='success' onClick={(e) => handleConfirm(e, 'Export to Excel')} disabled={isEmpty(participants)}>
+                                <Download/>
+                              </IconButton>
+                            </Tooltip>
 
-                              <input
-                                id='import-input'
-                                type='file'
-                                hidden
-                                accept='application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, .csv,'
-                                onChange={handleUploadFile}
-                              />
-                            </IconButton>
-                          </Tooltip>
+                            <Tooltip title='Import Excel'>
+                              <IconButton color='success' component="label">
+                                <Upload/>
 
-                          <Tooltip title='Add Participants'>
-                            <IconButton color='primary' onClick={() => setIsAddFormOpen(!isAddFormOpen)}>
-                              <Add/>
-                            </IconButton>
-                          </Tooltip>
+                                <input
+                                  id='import-input'
+                                  type='file'
+                                  hidden
+                                  accept='application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, .csv,'
+                                  onChange={handleUploadFile}
+                                />
+                              </IconButton>
+                            </Tooltip>
 
-                          <Tooltip title='Create New Event'>
-                            <IconButton color='primary' onClick={() => navigate('/admin/tickets/create-event')}>
-                              <Event/>
-                            </IconButton>
-                          </Tooltip>
-                        </>
+                            <Tooltip title='Add Participants'>
+                              <IconButton color='primary' onClick={() => setIsAddFormOpen(!isAddFormOpen)}>
+                                <Add/>
+                              </IconButton>
+                            </Tooltip>
+
+                            <Tooltip title='Create New Event'>
+                              <IconButton color='primary' onClick={() => navigate('/admin/tickets/create-event')}>
+                                <Event/>
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
+                        </Box>
                       ),
                       rowActions: (row) => (
                         <Box
@@ -645,11 +682,15 @@ const PerformanceDetailsPage = () => {
                         >
                           {
                             ['pending', 'failed'].includes(row.status) && (
-                              <><IconButton color='info' onClick={(e) => handleEdit(e, row)}>
-                                <Edit />
-                              </IconButton><IconButton color='error' onClick={(e) => handleConfirm(e, 'Delete', row)}>
-                                <Delete />
-                              </IconButton></>
+                              <>
+                                <IconButton color='info' onClick={(e) => handleEdit(e, row)}>
+                                  <Edit />
+                                </IconButton>
+
+                                <IconButton color='error' onClick={(e) => handleConfirm(e, 'Delete', row)}>
+                                  <Delete />
+                                </IconButton>
+                              </>
                             )
                           }
                         </Box>
