@@ -4,46 +4,43 @@ import React, {
   useState,
   useRef
 } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   useDispatch,
   useSelector
 } from 'react-redux';
 import { createSelector } from 'reselect';
 import {
-  getEventsAction,
-  setTableSelectedIdsAction,
-  updateEventsAction
+  getUsersAction, setTableSelectedIdsAction
 } from '../../../redux-saga/actions';
-import { TICKETING_EVENTS_TABLE_HEADERS } from '../../../utils/constants';
-import { useNavigate } from 'react-router-dom';
+import { USERS_TABLE_HEADERS } from '../../../utils/constants';
 import {
   debounce, isEmpty
 } from 'lodash';
 
 import {
-  Add, CheckCircleOutline, DoDisturb, Launch
+  Add, Delete, Edit
 } from '@mui/icons-material';
 import {
   Box, IconButton, Tooltip
 } from '@mui/material';
 import Button from '../../../components/button';
 import Table from '../../../components/table';
-import Input from '../../../components/input';
 import Modal from '../../../components/modal';
+import Input from '../../../components/input';
 
 const stateSelectors = createSelector(
-  state => state.ticket,
-  (ticket) => ({
-    loading: ticket.loading,
-    events: ticket.events
+  state => state.users,
+  (users) => ({
+    loading: users.loading,
+    users: users.data
   })
 );
 
-const TicketsPage = () => {
+const UsersPage = () => {
   const [searchInputValue, setSearchInputValue] = useState('');
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmMode, setConfirmMode] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(false);
   const searchInputRef = useRef(null);
 
   const dispatch = useDispatch();
@@ -51,12 +48,12 @@ const TicketsPage = () => {
 
   const {
     loading,
-    events
+    users
   } = useSelector(stateSelectors);
 
   const searchCallBack = (value) => {
     setSearchInputValue(value);
-    dispatch(getEventsAction({ search: value }));
+    dispatch(getUsersAction({ search: value }));
 
     setTimeout(() => {
       searchInputRef.current?.focus();
@@ -74,61 +71,37 @@ const TicketsPage = () => {
     setIsConfirmOpen(!isConfirmOpen);
     setConfirmMode(mode);
     if (!isEmpty(row)) {
-      setSelectedRow(row);
       dispatch(setTableSelectedIdsAction([]));
       dispatch(setTableSelectedIdsAction([row.id]));
     }
   };
 
-  const handleUpdateStatus = () => {
-    let status;
-    const performanceCode = selectedRow.performance_code;
-    switch(confirmMode) {
-      case 'Completed':
-        status = 2;
-        break;
-      case 'Reopen':
-        status = 1;
-        break;
-      case 'Cancelled':
-        status = 3;
-        break;
-      default:
-        return;
-    }
-
-    const payload = {
-      performanceCode,
-      data: { status }
-    };
-
-    dispatch(updateEventsAction(payload)).then(() => {
-      dispatch(getEventsAction());
-    });
-  };
-
   const handleYes = () => {
-    handleUpdateStatus();
     setIsConfirmOpen(!isConfirmOpen);
   };
 
+  const handleEdit = () => {
+
+  };
+
   useEffect(() => {
-    dispatch(getEventsAction());
+    dispatch(getUsersAction());
   }, []);
 
   return <>
     <Box sx={{ mb: 2 }} align='right'>
       <Button
         startIcon={<Add/>}
-        label='Add Event'
-        onClick={() => navigate('/admin/events/add')}
+        label='Add User'
+        onClick={() => navigate('/admin/users/add')}
       />
     </Box>
 
     <Box>
       <Table {...{
+        rows: users,
+        headers: USERS_TABLE_HEADERS,
         loading,
-        headers: TICKETING_EVENTS_TABLE_HEADERS,
         headerActions: (
           <Box
             sx={{
@@ -159,30 +132,22 @@ const TicketsPage = () => {
                 gap: 2
               }}
             >
-              <Tooltip title='Completed'>
-                <IconButton color='success' onClick={(e) => handleConfirm(e, 'Completed', row)}>
-                  <CheckCircleOutline/>
+              <Tooltip title='Complete'>
+                <IconButton color='info' onClick={(e) => handleEdit()}>
+                  <Edit/>
                 </IconButton>
               </Tooltip>
 
-              <Tooltip title='Reopen'>
-                <IconButton color='warning' onClick={(e) => handleConfirm(e, 'Reopen', row)}>
-                  <Launch/>
-                </IconButton>
-              </Tooltip>
-
-              <Tooltip title='Cancelled'>
-                <IconButton color='error' onClick={(e) => handleConfirm(e, 'Cancelled', row)}>
-                  <DoDisturb/>
+              <Tooltip title='Cancel'>
+                <IconButton color='error' onClick={(e) => handleConfirm(e, 'Delete', row)}>
+                  <Delete/>
                 </IconButton>
               </Tooltip>
             </Box>
           </>
         ),
-        rows: events,
         hasSelectMultiple: false
       }}/>
-
 
       <Modal {...{
         title: confirmMode,
@@ -193,7 +158,7 @@ const TicketsPage = () => {
         }
       }}>
         <Box sx={{ mb: 2 }}>
-          {`Are you sure you want to update the status of the selected row into ${confirmMode}?`}
+          Are you sure you want to {confirmMode} the selected row?
         </Box>
 
         <Box
@@ -212,4 +177,4 @@ const TicketsPage = () => {
   </>;
 };
 
-export default TicketsPage;
+export default UsersPage;

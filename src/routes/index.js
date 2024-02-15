@@ -19,6 +19,7 @@ import TicketsPage from '../pages/admin/tickets';
 import ErrorPage from '../pages/error-page';
 import CreateEventPage from '../pages/admin/tickets/create-event-page';
 import PerformanceDetailsPage from '../pages/admin/tickets/performance-details-page';
+import UsersPage from '../pages/admin/users';
 
 const AppRoutes = () => {
   const ADMIN_UNAUTH_ROUTES = [
@@ -38,11 +39,15 @@ const AppRoutes = () => {
       page: <DashboardPage/>
     },
     {
+      path: '/admin/users',
+      page: <UsersPage/>
+    },
+    {
       path: '/admin/events',
       page: <TicketsPage/>
     },
     {
-      path: '/admin/events/create-event',
+      path: '/admin/events/add',
       page: <CreateEventPage/>
     },
     {

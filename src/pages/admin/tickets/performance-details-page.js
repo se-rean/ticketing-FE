@@ -659,7 +659,7 @@ const PerformanceDetailsPage = () => {
                             }
 
                             <Tooltip title='Create New Event'>
-                              <IconButton color='primary' onClick={() => navigate('/admin/events/create-event')}>
+                              <IconButton color='primary' onClick={() => navigate('/admin/events/add')}>
                                 <Event/>
                               </IconButton>
                             </Tooltip>

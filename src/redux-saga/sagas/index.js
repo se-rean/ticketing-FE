@@ -21,7 +21,8 @@ import {
   GET_EVENTS,
   REFUND_PARTICIPANTS,
   DELETE_PARTICIPANTS,
-  UPDATE_PARTICIPANTS
+  UPDATE_PARTICIPANTS,
+  GET_USERS
 } from '../action-types';
 
 import {
@@ -29,7 +30,8 @@ import {
   getPerformanceDetailsAction,
   setEventsAction,
   setParticipantsDataAction,
-  setPerformanceDetailsAction
+  setPerformanceDetailsAction,
+  setUsersAction
 } from '../actions';
 import {
   toastError, toastSuccess
@@ -169,6 +171,25 @@ function* updateParticipantsSuccess() {
   });
 }
 
+function* getUsersSuccess() {
+  yield takeEvery(appendSuccess(GET_USERS), function* fn({ payload: { data: response, config: { search: searchValue } } }) {
+    const {
+      data,
+      is_success: isSuccess
+    } = response;
+
+    if (isSuccess) {
+      const user = JSON.parse(sessionStorage.getItem('user'));
+
+      const mappedData = data.map(i => ({
+        ...i, fullName: `${i.fname} ${i.mname} ${i.lname}`
+      })).filter(i => i.id !== user.id && i.fullName.toLowerCase().includes(searchValue.toLowerCase()));
+
+      yield put(setUsersAction(mappedData));
+    }
+  });
+}
+
 export default function* rootSaga() {
   yield all([
     watchLoginSuccess(),
@@ -178,6 +199,7 @@ export default function* rootSaga() {
     refundParticipantsSuccess(),
     generateBarcodeSuccess(),
     deleteParticipantsSuccess(),
-    updateParticipantsSuccess()
+    updateParticipantsSuccess(),
+    getUsersSuccess()
   ]);
 }

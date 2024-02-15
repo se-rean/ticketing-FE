@@ -69,6 +69,39 @@ export const TICKETING_EVENTS_TABLE_HEADERS = [
   }
 ];
 
+export const USERS_TABLE_HEADERS = [
+  {
+    rowId: 'fullName',
+    label: 'Name',
+    type: 'text'
+  },
+  {
+    rowId: 'username',
+    label: 'User Name',
+    type: 'text'
+  },
+  {
+    rowId: 'email',
+    label: 'Email',
+    type: 'text'
+  },
+  {
+    rowId: 'phone',
+    label: 'Phone',
+    type: 'text'
+  },
+  {
+    rowId: 'created_at',
+    label: 'Created At',
+    type: 'datetime'
+  },
+  {
+    rowId: 'updated_at',
+    label: 'Updated At',
+    type: 'datetime'
+  }
+];
+
 export const eventStatus = {
   PENDING_FOR_BARCODE_GENERATION: 'PENDING FOR BARCODE GENERATION',
   COMPLETED: 'COMPLETED',

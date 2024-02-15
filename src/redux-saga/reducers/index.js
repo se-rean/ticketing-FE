@@ -20,7 +20,9 @@ import {
   CREATE_PARTICIPANTS_BARCODE,
   GET_EVENTS,
   SET_EVENTS,
-  UPDATE_EVENTS
+  UPDATE_EVENTS,
+  GET_USERS,
+  SET_USERS
 } from '../action-types';
 
 const login = (state = {
@@ -247,6 +249,41 @@ const ticket = (state = {
   }
 };
 
+const users = (state = {
+  loading: false,
+  isSuccess: null,
+  errors: null,
+  data: []
+}, action) => {
+  switch(action.type) {
+    case appendRequest(GET_USERS):
+      return {
+        ...state,
+        loading: true
+      };
+    case appendSuccess(GET_USERS):
+      return {
+        ...state,
+        loading: false,
+        errors: action.payload.data.errors,
+        isSuccess: action.payload.data.is_success,
+        message: action.payload.data.message
+      };
+    case appendFailed(GET_USERS):
+      return {
+        ...state,
+        loading: false
+      };
+    case SET_USERS:
+      return {
+        ...state,
+        data: action.payload
+      };
+    default:
+      return state;
+  }
+};
+
 const auth = (state = {
   isTokenExpired: false,
   message: ''
@@ -267,7 +304,8 @@ const rootReducer = combineReducers({
   login,
   table,
   ticket,
-  auth
+  auth,
+  users
 });
 
 export default rootReducer;

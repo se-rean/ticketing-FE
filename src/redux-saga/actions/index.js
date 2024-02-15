@@ -18,7 +18,9 @@ import {
   DELETE_PARTICIPANTS,
   CREATE_RANDOM_PARTICIPANTS,
   UPDATE_PARTICIPANTS,
-  UPDATE_EVENTS
+  UPDATE_EVENTS,
+  GET_USERS,
+  SET_USERS
 } from '../action-types';
 
 export const loginAction = (payload) => ({
@@ -192,4 +194,20 @@ export const updateEventsAction = (payload) => ({
       data: payload.data
     }
   }
+});
+
+export const getUsersAction = (payload) => ({
+  types: setTypes(GET_USERS),
+  payload: {
+    request: {
+      method: 'GET',
+      url: 'v1/User',
+      search: payload?.search || ''
+    }
+  }
+});
+
+export const setUsersAction = (payload) => ({
+  type: SET_USERS,
+  payload
 });

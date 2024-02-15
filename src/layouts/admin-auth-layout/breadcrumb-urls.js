@@ -4,11 +4,13 @@ import {
   Add,
   ConfirmationNumber,
   Dashboard,
-  Info
+  Edit,
+  Info,
+  People
 } from '@mui/icons-material';
 
 const BreadCrumbsUrls = ({ pathname, params }) => {
-  const { performanceCode } = params;
+  const { performanceCode, editId } = params;
 
   const links = [
     {
@@ -22,6 +24,61 @@ const BreadCrumbsUrls = ({ pathname, params }) => {
       ]
     },
     {
+      pathname: '/admin/users',
+      link: [
+        {
+          label: 'Dashboard',
+          icon: <Dashboard fontSize='inherit'/>,
+          to: '/admin'
+        },
+        {
+          label: 'Users',
+          icon: <People fontSize='inherit'/>,
+          active: true
+        }
+      ]
+    },
+    {
+      pathname: '/admin/users/add',
+      link: [
+        {
+          label: 'Dashboard',
+          icon: <Dashboard fontSize='inherit'/>,
+          to: '/admin'
+        },
+        {
+          label: 'Users',
+          icon: <People fontSize='inherit'/>,
+          to: '/admin/users'
+        },
+        {
+          label: 'Add',
+          icon: <Add fontSize='inherit'/>,
+          active: true
+        }
+      ]
+    },
+    {
+      pathname: `/admin/users/edit/${editId}`,
+      link: [
+        {
+          label: 'Dashboard',
+          icon: <Dashboard fontSize='inherit'/>,
+          to: '/admin'
+        },
+        {
+          label: 'Users',
+          icon: <People fontSize='inherit'/>,
+          to: '/admin/users'
+        },
+        {
+          label: 'Edit',
+          icon: <Edit fontSize='inherit'/>,
+          active: true
+        }
+      ]
+    },
+    {
       pathname: '/admin/events',
       link: [
         {
@@ -30,14 +87,14 @@ const BreadCrumbsUrls = ({ pathname, params }) => {
           to: '/admin'
         },
         {
-          label: 'events',
+          label: 'Events',
           icon: <ConfirmationNumber fontSize='inherit'/>,
           active: true
         }
       ]
     },
     {
-      pathname: '/admin/events/create-event',
+      pathname: '/admin/events/add',
       link: [
         {
           label: 'Dashboard',
@@ -50,7 +107,7 @@ const BreadCrumbsUrls = ({ pathname, params }) => {
           to: '/admin/events'
         },
         {
-          label: 'Event',
+          label: 'Add',
           icon: <Add fontSize='inherit'/>,
           active: true
         }
