@@ -20,6 +20,9 @@ const StatusChip = ({ label }) => {
     case eventStatus.CANCELLED:
       color = 'error';
       break;
+    case eventStatus.EVENT_NOT_AVAILABLE:
+      color = 'error';
+      break;
     case participantsStatus.REFUNDED:
       color = 'error';
       break;

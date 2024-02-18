@@ -103,15 +103,8 @@ const UsersPage = () => {
         headers: USERS_TABLE_HEADERS,
         loading,
         headerActions: (
-          <Box
-            sx={{
-              p: 1,
-              display: 'flex',
-              justifyContent: 'end',
-              flexWrap: 'wrap',
-              gap: 1
-            }}
-          >
+          <>
+            <Box></Box>
             <Box>
               <Input
                 inputRef={searchInputRef}
@@ -121,7 +114,7 @@ const UsersPage = () => {
                 onChange={e => handleSearchChange(e.target.value)}
               />
             </Box>
-          </Box>
+          </>
         ),
         rowActions: (row) => (
           <>

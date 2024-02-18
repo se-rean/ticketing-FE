@@ -41,7 +41,6 @@ const LoginPage = () => {
     handleSubmit
   } = useForm();
 
-
   const onSubmit = (data) => {
     dispatch(loginAction(data));
   };
@@ -67,7 +66,7 @@ const LoginPage = () => {
               name='username'
               label='Username'
               {...register('username', { required: 'Username field is required.' })}
-              error={fieldErrors.userNameOrEmail}
+              error={fieldErrors.username}
               disabled={loading}
             />
           </Grid>

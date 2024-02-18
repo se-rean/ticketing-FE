@@ -60,23 +60,14 @@ function* watchLoginSuccess() {
 }
 
 function* watchGetParticipantsSuccess() {
-  yield takeEvery([ appendSuccess(GET_PARTICIPANTS) ], function* fn({ payload: { data: response, config: { status: statusValue } } }) {
+  yield takeEvery([ appendSuccess(GET_PARTICIPANTS) ], function* fn({ payload: { data: response } }) {
     const { is_success: isSuccess, data } = response;
 
     if (isSuccess) {
-      let mappedData;
-
-      if (statusValue === 'All Status') {
-        mappedData = data.map(i => ({
-          ...i,
-          fullName: `${i.firstname} ${i.lastname}`
-        }));
-      } else {
-        mappedData = data.map(i => ({
-          ...i,
-          fullName: `${i.firstname} ${i.lastname}`
-        })).filter(i => i.status === statusValue);
-      }
+      const mappedData = data.map(i => ({
+        ...i,
+        fullName: `${i.firstname} ${i.lastname}`
+      }));
 
       yield put(setParticipantsDataAction(mappedData));
     }

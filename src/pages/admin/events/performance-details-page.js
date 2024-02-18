@@ -68,6 +68,7 @@ import {
   setParticipantsDataAction
 } from '../../../redux-saga/actions';
 import EditParticipantsForm from './edit-participants-form';
+import StatusChip from '../../../components/status-chip';
 
 const stateSelectors = createSelector(
   state => state.ticket,
@@ -91,7 +92,7 @@ const PerformanceDetailsPage = () => {
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(false);
-  const [statusInputValue, setStatusInputValue] = useState('All Status');
+  const [statusInputValue, setStatusInputValue] = useState('all-status');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -113,8 +114,23 @@ const PerformanceDetailsPage = () => {
       performanceCode: performanceCode,
       page: page + 1,
       pageSize,
-      status: statusInputValue
+      status: getParticipantsStatusId()
     }));
+  };
+
+  const getParticipantsStatusId = () => {
+    switch(statusInputValue) {
+      case 'all-status':
+        return '';
+      case 'pending':
+        return 1;
+      case 'refunded':
+        return 2;
+      case 'sold':
+        return 3;
+      default:
+        return '';
+    }
   };
 
   const handleUploadFile = (e) => {
@@ -154,11 +170,7 @@ const PerformanceDetailsPage = () => {
         );
 
         dispatch(createParticipantsAction(payload)).then(() => {
-          dispatch(getParticipantsAction({
-            performanceCode,
-            page: page + 1,
-            pageSize
-          }));
+          fetchParticipants();
         });
 
         document.getElementById('import-input').value = '';
@@ -206,11 +218,7 @@ const PerformanceDetailsPage = () => {
 
     dispatch(createParticipantsBarcodeAction(payload))
       .then(() => {
-        dispatch(getParticipantsAction({
-          performanceCode: performanceCode,
-          page: page + 1,
-          pageSize
-        }));
+        fetchParticipants();
       });
   };
 
@@ -218,7 +226,8 @@ const PerformanceDetailsPage = () => {
     const payload = {
       performanceCode: performanceCode,
       page: 1,
-      pageSize: 1000000
+      pageSize: 1000000,
+      status: getParticipantsStatusId()
     };
 
     dispatch(getParticipantsAction(payload))
@@ -278,6 +287,11 @@ const PerformanceDetailsPage = () => {
     }
   };
 
+  const handleClose = () => {
+    setIsConfirmOpen(false);
+    dispatch(setTableSelectedIdsAction([]));
+  };
+
   const handleYes = () => {
     if (confirmMode === 'Generate Barcode') {
       handleGenerateBarcode();
@@ -322,6 +336,24 @@ const PerformanceDetailsPage = () => {
   useEffect(() => {
     fetchParticipants();
   }, [page, pageSize, statusInputValue]);
+
+  let confirmationMessage;
+  switch(confirmMode) {
+    case 'Delete':
+      confirmationMessage = 'Are you sure you want to Delete the selected row?';
+      break;
+    case 'Refund':
+      confirmationMessage = 'Are you sure you want to Refund the selected rows?';
+      break;
+    case 'Export to Excel':
+      confirmationMessage = 'Are you sure you want to Export into Excel the table datas?';
+      break;
+    case 'Generate Barcode':
+      confirmationMessage = 'Are you sure you want to Generate the Barcodes of the table datas?';
+      break;
+    default:
+      confirmationMessage = '';
+  }
 
   return <>
     <Grid container spacing={4}>
@@ -386,9 +418,9 @@ const PerformanceDetailsPage = () => {
                           </Typography>
                         </Grid>
 
-                        <Grid color={'green'} item xs={12} md={6} lg={6} xl={6}>
+                        <Grid item xs={12} md={6} lg={6} xl={6}>
                           <Typography variant='subtitle2'>
-                            {performanceDetails.status ? performanceDetails.status : '--'}
+                            {performanceDetails.status ? <StatusChip label={performanceDetails.status.toUpperCase()}/> : '--'}
                           </Typography>
                         </Grid>
                       </Grid>
@@ -590,28 +622,19 @@ const PerformanceDetailsPage = () => {
                 <Grid item xs={12}>
                   {!isAddFormOpen && !isEditFormOpen && (
                     <Table {...{
-                      id: 'performance-details-table',
                       loading: participantsLoading,
                       headers: TICKETING_TABLE_HEADERS,
                       rows: participants,
                       totalTableRows,
                       headerActions: (
-                        <Box
-                          sx={{
-                            py: 1,
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            flexWrap: 'wrap',
-                            gap: 1
-                          }}
-                        >
+                        <>
                           <Box>
                             <InputSelect
                               sx={{ width: 208 }}
                               label='Filter Status'
                               options={[
                                 {
-                                  label: 'All Status', value: 'All Status'
+                                  label: 'All Status', value: 'all-status'
                                 },
                                 {
                                   label: 'Pending', value: 'pending'
@@ -670,7 +693,7 @@ const PerformanceDetailsPage = () => {
                               </IconButton>
                             </Tooltip>
                           </Box>
-                        </Box>
+                        </>
                       ),
                       rowActions: (row) => (
                         <Box
@@ -726,13 +749,10 @@ const PerformanceDetailsPage = () => {
                   <Modal {...{
                     title: confirmMode,
                     isOpen: isConfirmOpen,
-                    handleClose: () => {
-                      setIsConfirmOpen(false);
-                      dispatch(setTableSelectedIdsAction([]));
-                    }
+                    handleClose: handleClose
                   }}>
                     <Box sx={{ mb: 2 }}>
-                      Are you sure you want to {confirmMode}?
+                      {confirmationMessage}
                     </Box>
 
                     <Box
@@ -742,7 +762,7 @@ const PerformanceDetailsPage = () => {
                         gap: 1
                       }}
                     >
-                      <Button variant='label' label='No' onClick={() => setIsConfirmOpen(false)}/>
+                      <Button variant='label' label='No' onClick={() => handleClose()}/>
 
                       <Button variant='label' label='Yes' onClick={() => handleYes()}/>
                     </Box>

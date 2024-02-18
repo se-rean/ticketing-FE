@@ -14,9 +14,18 @@ import {
   Popover,
   Avatar
 } from '@mui/material';
-import { Logout } from '@mui/icons-material';
+import {
+  Logout, Settings
+} from '@mui/icons-material';
 
 const MENU_OPTIONS = [
+  {
+    label: 'Account Settings',
+    icon: <Settings/>,
+    onClick: (navigate) => {
+      navigate('/admin/account-settings');
+    }
+  },
   {
     label: 'Logout',
     icon: <Logout/>,

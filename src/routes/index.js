@@ -15,11 +15,12 @@ import AdminAuthLayout from '../layouts/admin-auth-layout';
 import CheckAuth from './check-auth';
 import LoginPage from '../pages/login';
 import DashboardPage from '../pages/admin/dashboard';
-import TicketsPage from '../pages/admin/tickets';
+import EventsPage from '../pages/admin/events';
 import ErrorPage from '../pages/error-page';
-import CreateEventPage from '../pages/admin/tickets/create-event-page';
-import PerformanceDetailsPage from '../pages/admin/tickets/performance-details-page';
+import CreateEventPage from '../pages/admin/events/create-event-page';
+import PerformanceDetailsPage from '../pages/admin/events/performance-details-page';
 import UsersPage from '../pages/admin/users';
+import AccountSettingsPage from '../pages/admin/account-settings';
 
 const AppRoutes = () => {
   const ADMIN_UNAUTH_ROUTES = [
@@ -44,7 +45,7 @@ const AppRoutes = () => {
     },
     {
       path: '/admin/events',
-      page: <TicketsPage/>
+      page: <EventsPage/>
     },
     {
       path: '/admin/events/add',
@@ -53,6 +54,10 @@ const AppRoutes = () => {
     {
       path: '/admin/events/performance-details/:performanceCode',
       page: <PerformanceDetailsPage/>
+    },
+    {
+      path: '/admin/account-settings',
+      page: <AccountSettingsPage/>
     }
   ];
 

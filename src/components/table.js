@@ -212,9 +212,19 @@ const Table = ({
         ? (
           <>
             {headerActions && (
-              <>
+              <Box
+                sx={{
+                  px: 1,
+                  py: 2,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: 1,
+                  borderBottom: '1px solid rgba(224, 224, 224, 1)'
+                }}
+              >
                 {headerActions}
-              </>
+              </Box>
             )}
 
             <TableContainer>

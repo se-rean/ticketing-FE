@@ -6,7 +6,8 @@ import {
   Dashboard,
   Edit,
   Info,
-  People
+  People,
+  Settings
 } from '@mui/icons-material';
 
 const BreadCrumbsUrls = ({ pathname, params }) => {
@@ -129,6 +130,21 @@ const BreadCrumbsUrls = ({ pathname, params }) => {
         {
           label: 'Performance Details',
           icon: <Info fontSize='inherit'/>,
+          active: true
+        }
+      ]
+    },
+    {
+      pathname: '/admin/account-settings',
+      link: [
+        {
+          label: 'Dashboard',
+          icon: <Dashboard fontSize='inherit'/>,
+          to: '/admin'
+        },
+        {
+          label: 'Account Settings',
+          icon: <Settings fontSize='inherit'/>,
           active: true
         }
       ]

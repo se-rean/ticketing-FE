@@ -39,7 +39,7 @@ const stateSelectors = createSelector(
   })
 );
 
-const TicketsPage = () => {
+const EventsPage = () => {
   const [searchInputValue, setSearchInputValue] = useState('');
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmMode, setConfirmMode] = useState(false);
@@ -130,15 +130,8 @@ const TicketsPage = () => {
         loading,
         headers: TICKETING_EVENTS_TABLE_HEADERS,
         headerActions: (
-          <Box
-            sx={{
-              p: 1,
-              display: 'flex',
-              justifyContent: 'end',
-              flexWrap: 'wrap',
-              gap: 1
-            }}
-          >
+          <>
+            <Box></Box>
             <Box>
               <Input
                 inputRef={searchInputRef}
@@ -148,7 +141,7 @@ const TicketsPage = () => {
                 onChange={e => handleSearchChange(e.target.value)}
               />
             </Box>
-          </Box>
+          </>
         ),
         rowActions: (row) => (
           <>
@@ -212,4 +205,4 @@ const TicketsPage = () => {
   </>;
 };
 
-export default TicketsPage;
+export default EventsPage;

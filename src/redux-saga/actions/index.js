@@ -59,8 +59,7 @@ export const getParticipantsAction = ({
   payload: {
     request: {
       method: 'GET',
-      url: `v1/Ticketing/participants/${performanceCode}?page=${page}&page_size=${pageSize}`,
-      status
+      url: `v1/Ticketing/participants/${performanceCode}?page=${page}&page_size=${pageSize}&status=${status}`
     }
   }
 });
