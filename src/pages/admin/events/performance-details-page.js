@@ -126,8 +126,10 @@ const PerformanceDetailsPage = () => {
         return 1;
       case 'refunded':
         return 2;
-      case 'sold':
+      case 'failed':
         return 3;
+      case 'sold':
+        return 4;
       default:
         return '';
     }
@@ -640,10 +642,13 @@ const PerformanceDetailsPage = () => {
                                   label: 'Pending', value: 'pending'
                                 },
                                 {
-                                  label: 'Sold', value: 'sold'
+                                  label: 'Refunded', value: 'refunded'
                                 },
                                 {
-                                  label: 'Refunded', value: 'refunded'
+                                  label: 'Failed', value: 'failed'
+                                },
+                                {
+                                  label: 'Sold', value: 'sold'
                                 }
                               ]}
                               defaultValue={statusInputValue}
