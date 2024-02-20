@@ -1,16 +1,31 @@
 import React from 'react';
+import {
+  useDispatch,
+  useSelector
+} from 'react-redux';
+import { createSelector } from 'reselect';
 import { useForm } from 'react-hook-form';
 import { emailOnly } from '../../../utils/regex';
 import { numbersOnlyKeyPress } from '../../../helpers';
 
 import {
-  Box, Grid
+  Box,
+  Grid
 } from '@mui/material';
 import Input from '../../../components/input';
 import Modal from '../../../components/modal';
 import Button from '../../../components/button';
+import { updateUsersAction } from '../../../redux-saga/actions';
+import FormErrorBanner from '../../../components/form-error-banner';
+
+const stateSelectors = createSelector(
+  state => state.users,
+  (users) => ({ errors: users.errors })
+);
 
 const ProfileForm = ({ isFormOpen, setIsFormOpen }) => {
+  const dispatch = useDispatch();
+
   const {
     register,
     formState: { errors: fieldErrors },
@@ -18,15 +33,20 @@ const ProfileForm = ({ isFormOpen, setIsFormOpen }) => {
     reset
   } = useForm();
 
-  const userDetails = JSON.parse(sessionStorage.getItem('user'));
+  const { errors } = useSelector(stateSelectors);
 
-  const onSubmit = async data => {
-    console.log(data);
-  };
+  const userDetails = JSON.parse(sessionStorage.getItem('user'));
 
   const handleClose = () => {
     setIsFormOpen('');
     reset();
+  };
+
+  const onSubmit = async data => {
+    dispatch(updateUsersAction({
+      payload: data,
+      type: 'update-profile'
+    }));
   };
 
   return <>
@@ -39,6 +59,12 @@ const ProfileForm = ({ isFormOpen, setIsFormOpen }) => {
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={2}>
+          {errors && (
+            <Grid item xs={12}>
+              <FormErrorBanner {...{ message: errors }}/>
+            </Grid>
+          )}
+
           <Grid item xs={12}>
             <Input
               name='username'

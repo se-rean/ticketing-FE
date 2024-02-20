@@ -22,7 +22,9 @@ import {
   SET_EVENTS,
   UPDATE_EVENTS,
   GET_USERS,
-  SET_USERS
+  SET_USERS,
+  UPDATE_USERS,
+  CREATE_USERS
 } from '../action-types';
 
 const login = (state = {
@@ -102,7 +104,11 @@ const ticket = (state = {
   loading: false,
   participantsLoading: false,
   participants: [],
-  events: []
+  events: [],
+  pendingCount: 0,
+  refundedCount: 0,
+  soldCount: 0,
+  failedCount: 0
 }, action) => {
   switch(action.type) {
     case appendRequest(CREATE_EVENT):
@@ -187,7 +193,11 @@ const ticket = (state = {
         ...state,
         participantsLoading: false,
         errors: action.payload.data.errors,
-        message: action.payload.data.message
+        message: action.payload.data.message,
+        pendingCount: action.payload.data.pending,
+        refundedCount: action.payload.data.refunded,
+        soldCount: action.payload.data.sold,
+        failedCount: action.payload.data.failed
       };
     case appendFailed(GET_PARTICIPANTS):
       return {
@@ -278,6 +288,27 @@ const users = (state = {
       return {
         ...state,
         data: action.payload
+      };
+    case appendSuccess(UPDATE_USERS):
+      return {
+        ...state,
+        errors: action.payload.data.errors
+      };
+    case appendRequest(CREATE_USERS):
+      return {
+        ...state,
+        loading: true
+      };
+    case appendSuccess(CREATE_USERS):
+      return {
+        ...state,
+        errors: action.payload.data.errors,
+        loading: false
+      };
+    case appendFailed(CREATE_USERS):
+      return {
+        ...state,
+        loading: false
       };
     default:
       return state;

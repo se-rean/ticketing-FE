@@ -217,7 +217,7 @@ const Table = ({
                   px: 1,
                   py: 2,
                   display: 'flex',
-                  justifyContent: 'space-between',
+                  justifyContent: 'end',
                   flexWrap: 'wrap',
                   gap: 1,
                   borderBottom: '1px solid rgba(224, 224, 224, 1)'
@@ -227,7 +227,7 @@ const Table = ({
               </Box>
             )}
 
-            <TableContainer>
+            <TableContainer sx={{ height: rows.length === 0 ? '' : 420 }}>
               <MUITable
                 id={id}
                 size='small'
@@ -288,7 +288,7 @@ const Table = ({
             </TableContainer>
 
             {rows.length === 0 && (
-              <Box sx={{ height: 300 }}>
+              <Box sx={{ height: 420 }}>
                 <EmptyBanner/>
               </Box>
             )}

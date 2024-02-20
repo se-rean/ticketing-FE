@@ -20,7 +20,10 @@ import {
   UPDATE_PARTICIPANTS,
   UPDATE_EVENTS,
   GET_USERS,
-  SET_USERS
+  SET_USERS,
+  UPDATE_USERS,
+  CREATE_USERS,
+  DELETE_USERS
 } from '../action-types';
 
 export const loginAction = (payload) => ({
@@ -53,13 +56,16 @@ export const getParticipantsAction = ({
   performanceCode,
   page,
   pageSize,
-  status
+  status,
+  search = ''
 }) => ({
   types: setTypes(GET_PARTICIPANTS),
   payload: {
     request: {
       method: 'GET',
-      url: `v1/Ticketing/participants/${performanceCode}?page=${page}&page_size=${pageSize}&status=${status}`
+      url: `v1/Ticketing/participants/${performanceCode}?page=${page}&page_size=${pageSize}&status=${status}`,
+      search,
+      status
     }
   }
 });
@@ -209,4 +215,38 @@ export const getUsersAction = (payload) => ({
 export const setUsersAction = (payload) => ({
   type: SET_USERS,
   payload
+});
+
+export const updateUsersAction = ({ payload, type }) => ({
+  types: setTypes(UPDATE_USERS),
+  payload: {
+    request: {
+      method: 'PUT',
+      url: 'v1/User',
+      data: payload,
+      type: type
+    }
+  }
+});
+
+export const createUsersAction = (payload) => ({
+  types: setTypes(CREATE_USERS),
+  payload: {
+    request: {
+      method: 'POST',
+      url: 'v1/User',
+      data: payload
+    }
+  }
+});
+
+export const deleteUsersAction = (payload) => ({
+  types: setTypes(DELETE_USERS),
+  payload: {
+    request: {
+      method: 'DELETE',
+      url: `v1/User/${payload.id}`,
+      data: payload
+    }
+  }
 });

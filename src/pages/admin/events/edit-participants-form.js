@@ -60,8 +60,6 @@ const EditParticipantsForm = ({
     setValue('totalAmount', e.target.value * amount);
   };
 
-  var typeCodeOptions = [];
-
   const handleAreaChange = (e) => {
     const [area, typeCode] = e.target.value.split('-');
 
@@ -144,7 +142,29 @@ const EditParticipantsForm = ({
           />
         </Grid>
 
-        <Grid item xs={12} md={6} lg={4} xl={4}>
+        <Grid item xs={12} md={2} lg={1} xl={1}>
+          <Input
+            name='internationalcode'
+            label='International Code'
+            {...register('internationalcode', { required: 'International code field is required.' })}
+            defaultValue={selectedRow && selectedRow.internationalcode}
+            error={fieldErrors?.internationalcode}
+            disabled={loading}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={2} lg={1} xl={1}>
+          <Input
+            name='areacode'
+            label='Area Code'
+            {...register('areacode', { required: 'Area code field is required.' })}
+            defaultValue={selectedRow && selectedRow.areacode}
+            error={fieldErrors?.areacode}
+            disabled={loading}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={2} lg={2} xl={2}>
           <Input
             name='phonenumber'
             label='Phone number'
@@ -215,28 +235,6 @@ const EditParticipantsForm = ({
 
         <Grid item xs={12} md={6} lg={4} xl={4}>
           <Input
-            name='internationalcode'
-            label='International Code'
-            {...register('internationalcode', { required: 'International code field is required.' })}
-            defaultValue={selectedRow && selectedRow.internationalcode}
-            error={fieldErrors?.internationalcode}
-            disabled={loading}
-          />
-        </Grid>
-
-        <Grid item xs={12} md={6} lg={4} xl={4}>
-          <Input
-            name='areacode'
-            label='Area Code'
-            {...register('areacode', { required: 'Area code field is required.' })}
-            defaultValue={selectedRow && selectedRow.areacode}
-            error={fieldErrors?.areacode}
-            disabled={loading}
-          />
-        </Grid>
-
-        <Grid item xs={12} md={6} lg={4} xl={4}>
-          <Input
             name='job_title'
             label='Job Title'
             {...register('job_title', { required: 'Job title field is required.' })}
@@ -270,7 +268,7 @@ const EditParticipantsForm = ({
       </Grid>
 
       <Grid container spacing={2}>
-        <Grid item xs={12} md={2} lg={2} xl={2}>
+        <Grid item xs={12} md={2.4} lg={2.4} xl={2.4}>
           <InputSelect
             name='area'
             label='Update Price Category'
@@ -284,50 +282,48 @@ const EditParticipantsForm = ({
         </Grid>
 
 
-        <Grid item xs={12} md={2} lg={2} xl={2}>
+        <Grid item xs={12} md={2.4} lg={2.4} xl={2.4}>
           <Input
             name='area'
-            label='area'
-            {...register('area', { required: 'area field is required.' })}
-            options={typeCodeOptions}
+            label='Area'
+            {...register('area', { required: 'Area field is required.' })}
             defaultValue={selectedRow && selectedRow.area}
             error={fieldErrors?.area}
-            disabled={true}
+            readOnly
           />
         </Grid>
 
-        <Grid item xs={12} md={2} lg={2} xl={2}>
+        <Grid item xs={12} md={2.4} lg={2.4} xl={2.4}>
           <Input
             name='pricetype_code'
             label='Price Type Code'
             {...register('pricetype_code', { })}
-            options={typeCodeOptions}
             defaultValue={selectedRow && selectedRow.pricetype_code}
             error={fieldErrors?.pricetype_code}
-            disabled={true}
+            readOnly
           />
         </Grid>
 
-        <Grid item xs={12} md={2} lg={2} xl={2}>
+        <Grid item xs={12} md={2.4} lg={2.4} xl={2.4}>
           <Input
             name='quantity'
             label='Quantity'
             {...register('quantity', { })}
             defaultValue={selectedRow && selectedRow.quantity}
             error={fieldErrors?.quantity}
-            disabled={true}
+            readOnly
             onChange={(e) => handleQuantityChange(e)}
           />
         </Grid>
 
-        <Grid item xs={12} md={2} lg={2} xl={2}>
+        <Grid item xxs={12} md={2.4} lg={2.4} xl={2.4}>
           <Input
             name='totalAmount'
             label='Amount'
             {...register('totalAmount', { })}
             defaultValue={selectedRow && selectedRow.total_amount}
             error={fieldErrors?.totalAmount}
-            disabled={true}
+            readOnly
           />
         </Grid>
 

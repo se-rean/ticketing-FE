@@ -20,9 +20,12 @@ import ErrorPage from '../pages/error-page';
 import CreateEventPage from '../pages/admin/events/create-event-page';
 import PerformanceDetailsPage from '../pages/admin/events/performance-details-page';
 import UsersPage from '../pages/admin/users';
+import UsersFormPage from '../pages/admin/users/form';
 import AccountSettingsPage from '../pages/admin/account-settings';
 
 const AppRoutes = () => {
+  const userDetails = JSON.parse(sessionStorage.getItem('user'));
+
   const ADMIN_UNAUTH_ROUTES = [
     {
       path: '/',
@@ -39,9 +42,13 @@ const AppRoutes = () => {
       path: '/admin',
       page: <DashboardPage/>
     },
-    {
+    (userDetails?.role && userDetails.role === 'admin') && {
       path: '/admin/users',
       page: <UsersPage/>
+    },
+    (userDetails?.role && userDetails.role === 'admin') && {
+      path: '/admin/users/add',
+      page: <UsersFormPage/>
     },
     {
       path: '/admin/events',
@@ -59,7 +66,7 @@ const AppRoutes = () => {
       path: '/admin/account-settings',
       page: <AccountSettingsPage/>
     }
-  ];
+  ].filter(Boolean);
 
   return <>
     <BrowserRouter>

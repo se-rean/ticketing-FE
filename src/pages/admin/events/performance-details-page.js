@@ -3,7 +3,8 @@
 import React, {
   Fragment,
   useState,
-  useEffect
+  useEffect,
+  useRef
 } from 'react';
 import {
   useDispatch,
@@ -14,6 +15,16 @@ import {
   useParams
 } from 'react-router-dom';
 import { createSelector } from 'reselect';
+import {
+  createParticipantsAction,
+  getParticipantsAction,
+  getPerformanceDetailsAction,
+  createParticipantsBarcodeAction,
+  refundParticipantsAction,
+  setTableSelectedIdsAction,
+  deleteParticipantsAction,
+  setParticipantsDataAction
+} from '../../../redux-saga/actions';
 import { dateTime } from '../../../utils/date-formats';
 import { TICKETING_TABLE_HEADERS } from '../../../utils/constants';
 import {
@@ -24,7 +35,8 @@ import * as XLSX from 'xlsx';
 import {
   isEmpty,
   map,
-  zipObject
+  zipObject,
+  debounce
 } from 'lodash';
 
 import {
@@ -50,25 +62,16 @@ import {
   Delete,
   Edit
 } from '@mui/icons-material';
+
 import Table from '../../../components/table';
 import Loading from '../../../components/loading';
 import Modal from '../../../components/modal';
 import InputSelect from '../../../components/input-select';
 import Button from '../../../components/button';
 import AddParticipantsForm from './add-participants-form';
-
-import {
-  createParticipantsAction,
-  getParticipantsAction,
-  getPerformanceDetailsAction,
-  createParticipantsBarcodeAction,
-  refundParticipantsAction,
-  setTableSelectedIdsAction,
-  deleteParticipantsAction,
-  setParticipantsDataAction
-} from '../../../redux-saga/actions';
 import EditParticipantsForm from './edit-participants-form';
 import StatusChip from '../../../components/status-chip';
+import Input from '../../../components/input';
 
 const stateSelectors = createSelector(
   state => state.ticket,
@@ -81,7 +84,11 @@ const stateSelectors = createSelector(
     page: table.page,
     pageSize: table.pageSize,
     selectedTableIds: table.selectedIds,
-    totalTableRows: table.totalTableRows
+    totalTableRows: table.totalTableRows,
+    pendingCount: ticket.pendingCount,
+    refundedCount: ticket.refundedCount,
+    soldCount: ticket.soldCount,
+    failedCount: ticket.failedCount
   })
 );
 
@@ -93,6 +100,9 @@ const PerformanceDetailsPage = () => {
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(false);
   const [statusInputValue, setStatusInputValue] = useState('all-status');
+  const [searchInputValue, setSearchInputValue] = useState('');
+
+  const searchInputRef = useRef(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -106,7 +116,11 @@ const PerformanceDetailsPage = () => {
     selectedTableIds,
     page,
     pageSize,
-    totalTableRows
+    totalTableRows,
+    pendingCount,
+    refundedCount,
+    soldCount,
+    failedCount
   } = useSelector(stateSelectors);
 
   const fetchParticipants = () => {
@@ -130,6 +144,23 @@ const PerformanceDetailsPage = () => {
         return 3;
       case 'sold':
         return 4;
+      default:
+        return '';
+    }
+  };
+
+  const getParticipantsCount = () => {
+    switch(statusInputValue) {
+      case 'all-status':
+        return pendingCount + refundedCount + soldCount + failedCount;
+      case 'pending':
+        return pendingCount;
+      case 'refunded':
+        return refundedCount;
+      case 'failed':
+        return failedCount;
+      case 'sold':
+        return soldCount;
       default:
         return '';
     }
@@ -329,6 +360,27 @@ const PerformanceDetailsPage = () => {
 
   const handleFilterStatusChange = (e) => {
     setStatusInputValue(e.target.value);
+  };
+
+  const searchCallBack = (value) => {
+    setSearchInputValue(value);
+    dispatch(getParticipantsAction({
+      performanceCode: performanceCode,
+      page: page + 1,
+      pageSize,
+      status: getParticipantsStatusId(),
+      search: value
+    }));
+
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 100);
+  };
+
+  const debouncedHandleInputChange = debounce(searchCallBack, 500);
+
+  const handleSearchChange = (value) => {
+    debouncedHandleInputChange(value);
   };
 
   useEffect(() => {
@@ -608,7 +660,7 @@ const PerformanceDetailsPage = () => {
                 <Grid item xs={12}>
                   <Typography color='primary'>
                     {!isAddFormOpen && !isEditFormOpen && (
-                      <strong>Participants</strong>
+                      <strong>{`Paticipants (${getParticipantsCount()})`}</strong>
                     )}
 
                     {isAddFormOpen && (
@@ -630,6 +682,55 @@ const PerformanceDetailsPage = () => {
                       totalTableRows,
                       headerActions: (
                         <>
+                          <Box>
+                            {performanceDetails.status == 'Pending For Barcode Generation' && (
+                              <>
+                                <Tooltip title='Generate Barcode'>
+                                  <IconButton onClick={(e) => handleConfirm(e, 'Generate Barcode')} disabled={isEmpty(participants)}>
+                                    <QrCode />
+                                  </IconButton>
+                                </Tooltip>
+
+                                <Tooltip title='Process Refund'>
+                                  <IconButton color='warning' onClick={(e) => handleConfirm(e, 'Refund')} disabled={selectedTableIds.length === 0}>
+                                    <Replay />
+                                  </IconButton>
+                                </Tooltip>
+
+                                <Tooltip title='Import Excel'>
+                                  <IconButton color='success' component="label">
+                                    <Upload />
+
+                                    <input
+                                      id='import-input'
+                                      type='file'
+                                      hidden
+                                      accept='application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, .csv,'
+                                      onChange={handleUploadFile} />
+                                  </IconButton>
+                                </Tooltip>
+
+                                <Tooltip title='Add Participants'>
+                                  <IconButton color='primary' onClick={() => setIsAddFormOpen(!isAddFormOpen)}>
+                                    <Add />
+                                  </IconButton>
+                                </Tooltip>
+                              </>
+                            )}
+
+                            <Tooltip title='Create New Event'>
+                              <IconButton color='primary' onClick={() => navigate('/admin/events/add')}>
+                                <Event/>
+                              </IconButton>
+                            </Tooltip>
+
+                            <Tooltip title='Export to Excel'>
+                              <IconButton color='success' onClick={(e) => handleConfirm(e, 'Export to Excel')} disabled={isEmpty(participants)}>
+                                <Download/>
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
+
                           <Box>
                             <InputSelect
                               sx={{ width: 208 }}
@@ -657,46 +758,13 @@ const PerformanceDetailsPage = () => {
                           </Box>
 
                           <Box>
-                            {
-                              (performanceDetails.status == 'Pending For Barcode Generation') && (
-                                <><Tooltip title='Generate Barcode'>
-                                  <IconButton onClick={(e) => handleConfirm(e, 'Generate Barcode')} disabled={isEmpty(participants)}>
-                                    <QrCode />
-                                  </IconButton>
-                                </Tooltip><Tooltip title='Process Refund'>
-                                  <IconButton color='warning' onClick={(e) => handleConfirm(e, 'Refund')} disabled={selectedTableIds.length === 0}>
-                                    <Replay />
-                                  </IconButton>
-                                </Tooltip><Tooltip title='Import Excel'>
-                                  <IconButton color='success' component="label">
-                                    <Upload />
-
-                                    <input
-                                      id='import-input'
-                                      type='file'
-                                      hidden
-                                      accept='application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, .csv,'
-                                      onChange={handleUploadFile} />
-                                  </IconButton>
-                                </Tooltip><Tooltip title='Add Participants'>
-                                  <IconButton color='primary' onClick={() => setIsAddFormOpen(!isAddFormOpen)}>
-                                    <Add />
-                                  </IconButton>
-                                </Tooltip></>
-                              )
-                            }
-
-                            <Tooltip title='Create New Event'>
-                              <IconButton color='primary' onClick={() => navigate('/admin/events/add')}>
-                                <Event/>
-                              </IconButton>
-                            </Tooltip>
-
-                            <Tooltip title='Export to Excel'>
-                              <IconButton color='success' onClick={(e) => handleConfirm(e, 'Export to Excel')} disabled={isEmpty(participants)}>
-                                <Download/>
-                              </IconButton>
-                            </Tooltip>
+                            <Input
+                              inputRef={searchInputRef}
+                              defaultValue={searchInputValue}
+                              name='search'
+                              label='Search'
+                              onChange={e => handleSearchChange(e.target.value)}
+                            />
                           </Box>
                         </>
                       ),

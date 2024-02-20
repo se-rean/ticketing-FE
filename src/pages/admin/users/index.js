@@ -11,6 +11,7 @@ import {
 } from 'react-redux';
 import { createSelector } from 'reselect';
 import {
+  deleteUsersAction,
   getUsersAction, setTableSelectedIdsAction
 } from '../../../redux-saga/actions';
 import { USERS_TABLE_HEADERS } from '../../../utils/constants';
@@ -31,9 +32,11 @@ import Input from '../../../components/input';
 
 const stateSelectors = createSelector(
   state => state.users,
-  (users) => ({
+  state => state.table,
+  (users, table) => ({
     loading: users.loading,
-    users: users.data
+    users: users.data,
+    selectedTableIds: table.selectedIds
   })
 );
 
@@ -48,7 +51,8 @@ const UsersPage = () => {
 
   const {
     loading,
-    users
+    users,
+    selectedTableIds
   } = useSelector(stateSelectors);
 
   const searchCallBack = (value) => {
@@ -77,11 +81,14 @@ const UsersPage = () => {
   };
 
   const handleYes = () => {
+    if (confirmMode === 'Delete') {
+      const payload = { id: selectedTableIds[0] };
+      dispatch(deleteUsersAction(payload)).then(() => {
+        dispatch(getUsersAction());
+      });
+    }
+
     setIsConfirmOpen(!isConfirmOpen);
-  };
-
-  const handleEdit = () => {
-
   };
 
   useEffect(() => {
@@ -125,12 +132,6 @@ const UsersPage = () => {
                 gap: 2
               }}
             >
-              <Tooltip title='Complete'>
-                <IconButton color='info' onClick={(e) => handleEdit()}>
-                  <Edit/>
-                </IconButton>
-              </Tooltip>
-
               <Tooltip title='Cancel'>
                 <IconButton color='error' onClick={(e) => handleConfirm(e, 'Delete', row)}>
                   <Delete/>
