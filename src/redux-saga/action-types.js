@@ -43,4 +43,7 @@ export const CREATE_USERS = 'CREATE_USERS';
 export const UPDATE_USERS = 'UPDATE_USERS';
 export const DELETE_USERS = 'DELETE_USERS';
 
+export const GET_LOGS = 'GET_LOGS';
+export const SET_LOGS = 'SET_LOGS';
+
 export const SET_AUTH_TOKEN_EXPIRED = 'SET_AUTH_TOKEN_EXPIRED';

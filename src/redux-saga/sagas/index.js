@@ -25,13 +25,15 @@ import {
   GET_USERS,
   UPDATE_USERS,
   CREATE_USERS,
-  DELETE_USERS
+  DELETE_USERS,
+  GET_LOGS
 } from '../action-types';
 
 import {
   getParticipantsAction,
   getPerformanceDetailsAction,
   setEventsAction,
+  setLogsAction,
   setParticipantsDataAction,
   setPerformanceDetailsAction,
   setUsersAction
@@ -257,6 +259,28 @@ function* watchDeleteUserSuccess() {
   });
 }
 
+function* watchGetLogsSuccess() {
+  yield takeEvery([ appendSuccess(GET_LOGS) ], function* fn({ payload: { data: response, config: { search: searchValue, type: typeValue } } }) {
+    const { is_success: isSuccess, data } = response;
+
+    if (isSuccess) {
+      let filterData;
+      const tempTypeValue = typeValue.includes('All Actions') ? '' : typeValue;
+
+      if (!isEmpty(tempTypeValue)) {
+        filterData = data
+          .filter(i => i.type.includes(tempTypeValue)
+            && i.type.toLowerCase().includes(searchValue.toLowerCase()));
+      } else {
+        filterData = data
+          .filter(i => i.type.toLowerCase().includes(searchValue.toLowerCase()));
+      }
+
+      yield put(setLogsAction(filterData));
+    }
+  });
+}
+
 export default function* rootSaga() {
   yield all([
     watchLoginSuccess(),
@@ -270,6 +294,7 @@ export default function* rootSaga() {
     watchGetUsersSuccess(),
     watchUpdateUserSuccess(),
     watchCreateUserSuccess(),
-    watchDeleteUserSuccess()
+    watchDeleteUserSuccess(),
+    watchGetLogsSuccess()
   ]);
 }

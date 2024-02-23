@@ -22,6 +22,7 @@ import PerformanceDetailsPage from '../pages/admin/events/performance-details-pa
 import UsersPage from '../pages/admin/users';
 import UsersFormPage from '../pages/admin/users/form';
 import AccountSettingsPage from '../pages/admin/account-settings';
+import LogsPage from '../pages/admin/logs';
 
 const AppRoutes = () => {
   const userDetails = JSON.parse(sessionStorage.getItem('user'));
@@ -65,6 +66,10 @@ const AppRoutes = () => {
     {
       path: '/admin/account-settings',
       page: <AccountSettingsPage/>
+    },
+    {
+      path: '/admin/logs',
+      page: <LogsPage/>
     }
   ].filter(Boolean);
 

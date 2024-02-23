@@ -24,7 +24,9 @@ import {
   GET_USERS,
   SET_USERS,
   UPDATE_USERS,
-  CREATE_USERS
+  CREATE_USERS,
+  GET_LOGS,
+  SET_LOGS
 } from '../action-types';
 
 const login = (state = {
@@ -87,6 +89,11 @@ const table = (state = {
         totalTableRows: action.payload.data?.count
       };
     case appendSuccess(GET_EVENTS):
+      return {
+        ...state,
+        totalTableRows: action.payload.data?.count
+      };
+    case appendSuccess(GET_LOGS):
       return {
         ...state,
         totalTableRows: action.payload.data?.count
@@ -315,6 +322,41 @@ const users = (state = {
   }
 };
 
+const logs = (state = {
+  loading: false,
+  isSuccess: null,
+  errors: null,
+  data: []
+}, action) => {
+  switch(action.type) {
+    case appendRequest(GET_LOGS):
+      return {
+        ...state,
+        loading: true
+      };
+    case appendSuccess(GET_LOGS):
+      return {
+        ...state,
+        loading: false,
+        errors: action.payload.data.errors,
+        isSuccess: action.payload.data.is_success,
+        message: action.payload.data.message
+      };
+    case appendFailed(GET_LOGS):
+      return {
+        ...state,
+        loading: false
+      };
+    case SET_LOGS:
+      return {
+        ...state,
+        data: action.payload
+      };
+    default:
+      return state;
+  }
+};
+
 const auth = (state = {
   isTokenExpired: false,
   message: ''
@@ -336,7 +378,8 @@ const rootReducer = combineReducers({
   table,
   ticket,
   auth,
-  users
+  users,
+  logs
 });
 
 export default rootReducer;

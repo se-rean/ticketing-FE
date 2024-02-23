@@ -23,7 +23,9 @@ import {
   SET_USERS,
   UPDATE_USERS,
   CREATE_USERS,
-  DELETE_USERS
+  DELETE_USERS,
+  SET_LOGS,
+  GET_LOGS
 } from '../action-types';
 
 export const loginAction = (payload) => ({
@@ -249,4 +251,26 @@ export const deleteUsersAction = (payload) => ({
       data: payload
     }
   }
+});
+
+export const getLogsAction = ({
+  page,
+  pageSize,
+  type,
+  search = ''
+}) => ({
+  types: setTypes(GET_LOGS),
+  payload: {
+    request: {
+      method: 'GET',
+      url: `v1/Logs?page=${page}&page_size=${pageSize}&type=${type === 'All Actions' ? '' : type}`,
+      search,
+      type
+    }
+  }
+});
+
+export const setLogsAction = (payload) => ({
+  type: SET_LOGS,
+  payload
 });
