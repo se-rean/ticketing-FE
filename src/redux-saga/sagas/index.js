@@ -261,7 +261,7 @@ function* watchDeleteUserSuccess() {
 
 function* watchGetLogsSuccess() {
   yield takeEvery([ appendSuccess(GET_LOGS) ], function* fn({ payload: { data: response, config: { search: searchValue, type: typeValue } } }) {
-    const { is_success: isSuccess, data } = response;
+    const { is_success: isSuccess, data: { rows: data } } = response;
 
     if (isSuccess) {
       let filterData;
