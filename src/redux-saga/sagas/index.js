@@ -10,24 +10,20 @@ import {
 } from 'redux-saga/effects';
 
 import {
-  appendRequest,
   appendSuccess,
-  appendFailed,
   LOGIN,
   GET_PARTICIPANTS,
-  CREATE_EVENT,
   GET_PERFORMANCE_DETAILS,
   CREATE_PARTICIPANTS_BARCODE,
   GET_EVENTS,
   REFUND_PARTICIPANTS,
   DELETE_PARTICIPANTS,
   UPDATE_PARTICIPANTS,
-  GET_USERS
+  GET_USERS,
+  UPDATE_EVENTS
 } from '../action-types';
 
 import {
-  getParticipantsAction,
-  getPerformanceDetailsAction,
   setEventsAction,
   setParticipantsDataAction,
   setPerformanceDetailsAction,
@@ -88,18 +84,14 @@ function* getPerformanceDetailsSuccess() {
 }
 
 function* getEventsSuccess() {
-  yield takeEvery(appendSuccess(GET_EVENTS), function* fn({ payload: { data: response, config: { search: searchValue } } }) {
+  yield takeEvery(appendSuccess(GET_EVENTS), function* fn({ payload: { data: response } }) {
     const {
       data,
       is_success: isSuccess
     } = response;
 
     if (isSuccess) {
-      const filterData = data
-        .filter(i => i.performance_code.toLowerCase()
-          .includes(searchValue.toLowerCase()));
-
-      yield put(setEventsAction(filterData));
+      yield put(setEventsAction(data));
     }
   });
 }
@@ -181,6 +173,31 @@ function* getUsersSuccess() {
   });
 }
 
+function* updateEventsSuccess() {
+  yield takeEvery(appendSuccess(UPDATE_EVENTS), function* fn({ payload: { data: response } }) {
+    const {
+      is_success: isSuccess,
+      data
+    } = response;
+
+    const state = yield select(state => state.ticket);
+    const { events } = state;
+
+    const newEvents = [...events];
+    const newObj = data[0];
+    const index = newEvents.findIndex(item => item.id === newObj.id);
+
+    if (index !== -1) {
+      newEvents[index] = newObj;
+      yield put(setEventsAction(newEvents));
+    }
+
+    if (isSuccess) {
+      toastSuccess('Updated, Successfully!');
+    }
+  });
+}
+
 export default function* rootSaga() {
   yield all([
     watchLoginSuccess(),
@@ -191,6 +208,7 @@ export default function* rootSaga() {
     generateBarcodeSuccess(),
     deleteParticipantsSuccess(),
     updateParticipantsSuccess(),
-    getUsersSuccess()
+    getUsersSuccess(),
+    updateEventsSuccess()
   ]);
 }

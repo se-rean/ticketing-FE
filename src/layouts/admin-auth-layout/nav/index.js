@@ -8,9 +8,7 @@ import {
   ListItem,
   ListItemText,
   ListItemButton,
-  ListItemIcon,
-  Toolbar,
-  Divider
+  ListItemIcon
 } from '@mui/material';
 import useResponsive from '../../../hooks/use-responsive';
 
@@ -19,10 +17,28 @@ const RenderContent = () => {
 
   return <>
     <Box>
-      <Toolbar>
-      </Toolbar>
-
-      <Divider />
+      <Box
+        sx={{
+          p: 2,
+          display: 'flex',
+          justifyContent: 'center'
+        }}
+      >
+        <Box
+          sx={{
+            p: 1,
+            backgroundColor: 'white'
+          }}
+        >
+          <img
+            style={{
+              width: 100,
+              height: 50
+            }}
+            src={`${process.env.PUBLIC_URL}/assets/logo/sal-events.svg`}
+          />
+        </Box>
+      </Box>
 
       <List>
         {navItems && navItems.map((i, index) => (

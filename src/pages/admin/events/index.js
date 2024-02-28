@@ -11,6 +11,7 @@ import {
 import { createSelector } from 'reselect';
 import {
   getEventsAction,
+  setEventsAction,
   setTableSelectedIdsAction,
   updateEventsAction
 } from '../../../redux-saga/actions';
@@ -44,6 +45,7 @@ const EventsPage = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmMode, setConfirmMode] = useState(false);
   const [selectedRow, setSelectedRow] = useState(false);
+  const [tableRow, setTableRow] = useState([]);
   const searchInputRef = useRef(null);
 
   const dispatch = useDispatch();
@@ -56,7 +58,16 @@ const EventsPage = () => {
 
   const searchCallBack = (value) => {
     setSearchInputValue(value);
-    dispatch(getEventsAction({ search: value }));
+
+    let newEvents = [...events];
+    const searchValue = value.toLowerCase();
+    const filter = newEvents.filter(i =>
+      i.title.toLowerCase().includes(searchValue)
+      || i.performance_code.toLowerCase().includes(searchValue)
+      || i.status.toLowerCase().includes(searchValue)
+    );
+
+    setTableRow(filter);
 
     setTimeout(() => {
       searchInputRef.current?.focus();
@@ -102,9 +113,7 @@ const EventsPage = () => {
       data: { status }
     };
 
-    dispatch(updateEventsAction(payload)).then(() => {
-      dispatch(getEventsAction());
-    });
+    dispatch(updateEventsAction(payload));
   };
 
   const handleYes = () => {
@@ -115,6 +124,12 @@ const EventsPage = () => {
   useEffect(() => {
     dispatch(getEventsAction());
   }, []);
+
+  useEffect(() => {
+    if (!isEmpty(events)) {
+      setTableRow(events);
+    }
+  }, [events]);
 
   return <>
     <Box sx={{ mb: 2 }} align='right'>
@@ -172,7 +187,7 @@ const EventsPage = () => {
             </Box>
           </>
         ),
-        rows: events,
+        rows: tableRow,
         hasSelectMultiple: false
       }}/>
 

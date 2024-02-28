@@ -8,8 +8,8 @@ import { createSelector } from 'reselect';
 import { loginAction } from '../redux-saga/actions';
 
 import {
-  Grid,
-  Typography
+  Box,
+  Grid
 } from '@mui/material';
 
 import Input from '../components/input';
@@ -50,9 +50,20 @@ const LoginPage = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <Typography color='primary' align='center' variant='h6'>
-              Ticketing Admin
-            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center'
+              }}
+            >
+              <img
+                style={{
+                  width: 230,
+                  height: 230
+                }}
+                src={`${process.env.PUBLIC_URL}/assets/logo/sal-events.svg`}
+              />
+            </Box>
           </Grid>
 
           {!isSuccess && message && (

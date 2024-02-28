@@ -125,13 +125,12 @@ export const createParticipantsBarcodeAction = (payload) => ({
   }
 });
 
-export const getEventsAction = (payload) => ({
+export const getEventsAction = () => ({
   types: setTypes(GET_EVENTS),
   payload: {
     request: {
       method: 'GET',
-      url: 'v1/Ticketing/events',
-      search: payload?.search || ''
+      url: 'v1/Ticketing/events'
     }
   }
 });
