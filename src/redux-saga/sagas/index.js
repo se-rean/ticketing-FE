@@ -20,11 +20,16 @@ import {
   DELETE_PARTICIPANTS,
   UPDATE_PARTICIPANTS,
   GET_USERS,
-  UPDATE_EVENTS
+  UPDATE_EVENTS,
+  UPDATE_USERS,
+  CREATE_USERS,
+  DELETE_USERS,
+  GET_LOGS
 } from '../action-types';
 
 import {
   setEventsAction,
+  setLogsAction,
   setParticipantsDataAction,
   setPerformanceDetailsAction,
   setUsersAction
@@ -56,7 +61,7 @@ function* watchLoginSuccess() {
 }
 
 function* watchGetParticipantsSuccess() {
-  yield takeEvery([ appendSuccess(GET_PARTICIPANTS) ], function* fn({ payload: { data: response } }) {
+  yield takeEvery([ appendSuccess(GET_PARTICIPANTS) ], function* fn({ payload: { data: response, config: { search: searchValue, status: statusValue } } }) {
     const { is_success: isSuccess, data } = response;
 
     if (isSuccess) {
@@ -65,12 +70,37 @@ function* watchGetParticipantsSuccess() {
         fullName: `${i.firstname} ${i.lastname}`
       }));
 
-      yield put(setParticipantsDataAction(mappedData));
+      const getParticipantsStatus = () => {
+        switch(statusValue) {
+          case 1:
+            return 'pending';
+          case 2:
+            return 'refunded';
+          case 3:
+            return 'failed';
+          case 4:
+            return 'sold';
+          default:
+            return '';
+        }
+      };
+
+      let filterData;
+      if (!isEmpty(getParticipantsStatus())) {
+        filterData = mappedData
+          .filter(i => i.status.includes(getParticipantsStatus())
+            && i.fullName.toLowerCase().includes(searchValue.toLowerCase()));
+      } else {
+        filterData = mappedData
+          .filter(i => i.fullName.toLowerCase().includes(searchValue.toLowerCase()));
+      }
+
+      yield put(setParticipantsDataAction(filterData));
     }
   });
 }
 
-function* getPerformanceDetailsSuccess() {
+function* watchGetPerformanceDetailsSuccess() {
   yield takeEvery(appendSuccess(GET_PERFORMANCE_DETAILS), function* fn({ payload: { data: response } }) {
     const {
       data,
@@ -83,7 +113,7 @@ function* getPerformanceDetailsSuccess() {
   });
 }
 
-function* getEventsSuccess() {
+function* watchGetEventsSuccess() {
   yield takeEvery(appendSuccess(GET_EVENTS), function* fn({ payload: { data: response } }) {
     const {
       data,
@@ -96,7 +126,7 @@ function* getEventsSuccess() {
   });
 }
 
-function* refundParticipantsSuccess() {
+function* watchRefundParticipantsSuccess() {
   yield takeEvery(appendSuccess(REFUND_PARTICIPANTS), function* fn({ payload: { data: response } }) {
     const {
       is_success: isSuccess,
@@ -111,7 +141,7 @@ function* refundParticipantsSuccess() {
   });
 }
 
-function* generateBarcodeSuccess() {
+function* watchGenerateBarcodeSuccess() {
   yield takeEvery(appendSuccess(CREATE_PARTICIPANTS_BARCODE), function* fn({ payload: { data: response } }) {
     const {
       data,
@@ -128,7 +158,7 @@ function* generateBarcodeSuccess() {
   });
 }
 
-function* deleteParticipantsSuccess() {
+function* watchDeleteParticipantsSuccess() {
   yield takeEvery(appendSuccess(DELETE_PARTICIPANTS), function* fn({ payload: { data: response } }) {
     const {
       errors,
@@ -141,7 +171,7 @@ function* deleteParticipantsSuccess() {
   });
 }
 
-function* updateParticipantsSuccess() {
+function* watchUpdateParticipantsSuccess() {
   yield takeEvery(appendSuccess(UPDATE_PARTICIPANTS), function* fn({ payload: { data: response } }) {
     const {
       errors,
@@ -154,7 +184,7 @@ function* updateParticipantsSuccess() {
   });
 }
 
-function* getUsersSuccess() {
+function* watchGetUsersSuccess() {
   yield takeEvery(appendSuccess(GET_USERS), function* fn({ payload: { data: response, config: { search: searchValue } } }) {
     const {
       data,
@@ -193,7 +223,77 @@ function* updateEventsSuccess() {
     }
 
     if (isSuccess) {
+      toastSuccess('Updated successfully.');
+    }
+  });
+}
+
+function* watchUpdateUserSuccess() {
+  yield takeEvery(appendSuccess(UPDATE_USERS), function* fn({ payload: { data: response, config } }) {
+    const {
+      errors,
+      is_success: isSuccess
+    } = response;
+
+    const { data: payloadData, type } = config;
+
+    if (isSuccess) {
+      if (type === 'update-profile') {
+        const userDetails = JSON.parse(sessionStorage.getItem('user'));
+        const newUserDetails = Object.assign(userDetails, JSON.parse(payloadData));
+        sessionStorage.setItem('user', JSON.stringify(newUserDetails));
+      }
+
       toastSuccess('Updated, Successfully!');
+    }
+  });
+}
+
+function* watchCreateUserSuccess() {
+  yield takeEvery(appendSuccess(CREATE_USERS), function* fn({ payload: { data: response } }) {
+    const {
+      errors,
+      is_success: isSuccess
+    } = response;
+
+    if (isSuccess) {
+      toastSuccess('Created, Successfully!');
+      window.location.href = '/admin/users';
+    }
+  });
+}
+
+function* watchDeleteUserSuccess() {
+  yield takeEvery(appendSuccess(DELETE_USERS), function* fn({ payload: { data: response } }) {
+    const {
+      errors,
+      is_success: isSuccess
+    } = response;
+
+    if (isSuccess) {
+      toastSuccess('Deleted, Successfully!');
+    }
+  });
+}
+
+function* watchGetLogsSuccess() {
+  yield takeEvery([ appendSuccess(GET_LOGS) ], function* fn({ payload: { data: response, config: { search: searchValue, type: typeValue } } }) {
+    const { is_success: isSuccess, data: { rows: data } } = response;
+
+    if (isSuccess) {
+      let filterData;
+      const tempTypeValue = typeValue.includes('All Actions') ? '' : typeValue;
+
+      if (!isEmpty(tempTypeValue)) {
+        filterData = data
+          .filter(i => i.type.includes(tempTypeValue)
+            && i.type.toLowerCase().includes(searchValue.toLowerCase()));
+      } else {
+        filterData = data
+          .filter(i => i.type.toLowerCase().includes(searchValue.toLowerCase()));
+      }
+
+      yield put(setLogsAction(filterData));
     }
   });
 }
@@ -202,13 +302,23 @@ export default function* rootSaga() {
   yield all([
     watchLoginSuccess(),
     watchGetParticipantsSuccess(),
-    getPerformanceDetailsSuccess(),
-    getEventsSuccess(),
-    refundParticipantsSuccess(),
-    generateBarcodeSuccess(),
-    deleteParticipantsSuccess(),
-    updateParticipantsSuccess(),
-    getUsersSuccess(),
-    updateEventsSuccess()
+    watchGetPerformanceDetailsSuccess(),
+    watchRefundParticipantsSuccess(),
+    watchGenerateBarcodeSuccess(),
+    watchDeleteParticipantsSuccess(),
+    watchUpdateParticipantsSuccess(),
+    watchGetUsersSuccess(),
+    updateEventsSuccess(),
+    watchGetPerformanceDetailsSuccess(),
+    watchGetEventsSuccess(),
+    watchRefundParticipantsSuccess(),
+    watchGenerateBarcodeSuccess(),
+    watchDeleteParticipantsSuccess(),
+    watchUpdateParticipantsSuccess(),
+    watchGetUsersSuccess(),
+    watchUpdateUserSuccess(),
+    watchCreateUserSuccess(),
+    watchDeleteUserSuccess(),
+    watchGetLogsSuccess()
   ]);
 }

@@ -2,6 +2,7 @@ import React from 'react';
 
 import {
   Add,
+  Book,
   ConfirmationNumber,
   Dashboard,
   Edit,
@@ -145,6 +146,21 @@ const BreadCrumbsUrls = ({ pathname, params }) => {
         {
           label: 'Account Settings',
           icon: <Settings fontSize='inherit'/>,
+          active: true
+        }
+      ]
+    },
+    {
+      pathname: '/admin/logs',
+      link: [
+        {
+          label: 'Dashboard',
+          icon: <Dashboard fontSize='inherit'/>,
+          to: '/admin'
+        },
+        {
+          label: 'Logs',
+          icon: <Book fontSize='inherit'/>,
           active: true
         }
       ]

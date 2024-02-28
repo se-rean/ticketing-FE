@@ -102,6 +102,19 @@ export const USERS_TABLE_HEADERS = [
   }
 ];
 
+export const LOGS_TABLE_HEADERS = [
+  {
+    rowId: 'type',
+    label: 'Type',
+    type: 'text'
+  },
+  {
+    rowId: 'actions',
+    label: 'Actions',
+    type: 'text'
+  }
+];
+
 export const eventStatus = {
   PENDING_FOR_BARCODE_GENERATION: 'PENDING FOR BARCODE GENERATION',
   EVENT_NOT_AVAILABLE: 'EVENT NOT AVAILABLE',

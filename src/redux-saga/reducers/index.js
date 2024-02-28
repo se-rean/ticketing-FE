@@ -22,7 +22,11 @@ import {
   SET_EVENTS,
   UPDATE_EVENTS,
   GET_USERS,
-  SET_USERS
+  SET_USERS,
+  UPDATE_USERS,
+  CREATE_USERS,
+  GET_LOGS,
+  SET_LOGS
 } from '../action-types';
 
 const login = (state = {
@@ -89,6 +93,11 @@ const table = (state = {
         ...state,
         totalTableRows: action.payload.data?.count
       };
+    case appendSuccess(GET_LOGS):
+      return {
+        ...state,
+        totalTableRows: action.payload.data?.count
+      };
     default:
       return state;
   }
@@ -102,7 +111,11 @@ const ticket = (state = {
   loading: false,
   participantsLoading: false,
   participants: [],
-  events: []
+  events: [],
+  pendingCount: 0,
+  refundedCount: 0,
+  soldCount: 0,
+  failedCount: 0
 }, action) => {
   switch(action.type) {
     case appendRequest(CREATE_EVENT):
@@ -187,7 +200,11 @@ const ticket = (state = {
         ...state,
         participantsLoading: false,
         errors: action.payload.data.errors,
-        message: action.payload.data.message
+        message: action.payload.data.message,
+        pendingCount: action.payload.data.pending,
+        refundedCount: action.payload.data.refunded,
+        soldCount: action.payload.data.sold,
+        failedCount: action.payload.data.failed
       };
     case appendFailed(GET_PARTICIPANTS):
       return {
@@ -279,6 +296,62 @@ const users = (state = {
         ...state,
         data: action.payload
       };
+    case appendSuccess(UPDATE_USERS):
+      return {
+        ...state,
+        errors: action.payload.data.errors
+      };
+    case appendRequest(CREATE_USERS):
+      return {
+        ...state,
+        loading: true
+      };
+    case appendSuccess(CREATE_USERS):
+      return {
+        ...state,
+        errors: action.payload.data.errors,
+        loading: false
+      };
+    case appendFailed(CREATE_USERS):
+      return {
+        ...state,
+        loading: false
+      };
+    default:
+      return state;
+  }
+};
+
+const logs = (state = {
+  loading: false,
+  isSuccess: null,
+  errors: null,
+  data: []
+}, action) => {
+  switch(action.type) {
+    case appendRequest(GET_LOGS):
+      return {
+        ...state,
+        loading: true
+      };
+    case appendSuccess(GET_LOGS):
+      return {
+        ...state,
+        loading: false,
+        errors: action.payload.data.errors,
+        isSuccess: action.payload.data.is_success,
+        message: action.payload.data.message
+      };
+    case appendFailed(GET_LOGS):
+      return {
+        ...state,
+        loading: false
+      };
+    case SET_LOGS:
+      return {
+        ...state,
+        data: action.payload
+      };
     default:
       return state;
   }
@@ -305,7 +378,8 @@ const rootReducer = combineReducers({
   table,
   ticket,
   auth,
-  users
+  users,
+  logs
 });
 
 export default rootReducer;
