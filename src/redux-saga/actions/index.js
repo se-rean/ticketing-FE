@@ -25,7 +25,9 @@ import {
   CREATE_USERS,
   DELETE_USERS,
   SET_LOGS,
-  GET_LOGS
+  GET_LOGS,
+  SET_USER,
+  GET_USER
 } from '../action-types';
 
 export const loginAction = (payload) => ({
@@ -58,15 +60,13 @@ export const getParticipantsAction = ({
   performanceCode,
   page,
   pageSize,
-  status,
-  search = ''
+  status
 }) => ({
   types: setTypes(GET_PARTICIPANTS),
   payload: {
     request: {
       method: 'GET',
       url: `v1/Ticketing/participants/${performanceCode}?page=${page}&page_size=${pageSize}&status=${status}`,
-      search,
       status
     }
   }
@@ -202,13 +202,12 @@ export const updateEventsAction = (payload) => ({
   }
 });
 
-export const getUsersAction = (payload) => ({
+export const getUsersAction = () => ({
   types: setTypes(GET_USERS),
   payload: {
     request: {
       method: 'GET',
-      url: 'v1/User',
-      search: payload?.search || ''
+      url: 'v1/User'
     }
   }
 });
@@ -218,14 +217,29 @@ export const setUsersAction = (payload) => ({
   payload
 });
 
-export const updateUsersAction = ({ payload, type }) => ({
+export const getUserAction = (payload) => ({
+  types: setTypes(GET_USER),
+  payload: {
+    request: {
+      method: 'GET',
+      url: `v1/User/${payload}`
+    }
+  }
+});
+
+export const setUserAction = (payload) => ({
+  type: SET_USER,
+  payload
+});
+
+export const updateUsersAction = ({ payload, type = 'update', id = null }) => ({
   types: setTypes(UPDATE_USERS),
   payload: {
     request: {
       method: 'PUT',
-      url: 'v1/User',
+      url: !id ? 'v1/User' : `v1/User/?id=${id}`,
       data: payload,
-      type: type
+      type
     }
   }
 });
@@ -255,15 +269,13 @@ export const deleteUsersAction = (payload) => ({
 export const getLogsAction = ({
   page,
   pageSize,
-  type,
-  search = ''
+  type
 }) => ({
   types: setTypes(GET_LOGS),
   payload: {
     request: {
       method: 'GET',
       url: `v1/Logs?page=${page}&page_size=${pageSize}&type=${type === 'All Actions' ? '' : type}`,
-      search,
       type
     }
   }

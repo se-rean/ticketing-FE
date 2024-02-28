@@ -31,6 +31,8 @@ const stateSelectors = createSelector(
 const LogsPage = () => {
   const [typeInputValue, setTypeInputValue] = useState('All Actions');
   const [searchInputValue, setSearchInputValue] = useState('');
+  const [tableRows, setTableRows] = useState([]);
+
   const searchInputRef = useRef(null);
 
   const dispatch = useDispatch();
@@ -57,12 +59,16 @@ const LogsPage = () => {
 
   const searchCallBack = (value) => {
     setSearchInputValue(value);
-    dispatch(getLogsAction({
-      page: page + 1,
-      pageSize,
-      type: typeInputValue,
-      search: value
-    }));
+
+    let newLogs = [...logsData];
+    const searchValue = value.toLowerCase();
+    const filter = newLogs.filter(i =>
+      i.type.toLowerCase().includes(searchValue)
+      || i.user.toLowerCase().includes(searchValue)
+      || i.actions.toLowerCase().includes(searchValue)
+    );
+
+    setTableRows(filter);
 
     setTimeout(() => {
       searchInputRef.current?.focus();
@@ -79,11 +85,15 @@ const LogsPage = () => {
     fetchLogs();
   }, [page, pageSize, typeInputValue]);
 
+  useEffect(() => {
+    setTableRows(logsData);
+  }, [logsData]);
+
   return <>
     <Table
       {...{
         headers: LOGS_TABLE_HEADERS,
-        rows: logsData,
+        rows: tableRows,
         totalTableRows,
         headerActions: (
           <>

@@ -25,12 +25,15 @@ const Header = ({
   const [breadCrumbsLink, setBreadCrumbsLink] = useState([]);
 
   const { pathname } = useLocation();
-  const { performanceCode } = useParams();
+  const { performanceCode, editId } = useParams();
 
   useEffect(() => {
     setBreadCrumbsLink(BreadCrumbsUrl({
       pathname,
-      params: { performanceCode }
+      params: {
+        performanceCode,
+        editId
+      }
     }));
   }, [pathname]);
 

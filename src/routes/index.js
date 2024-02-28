@@ -51,6 +51,10 @@ const AppRoutes = () => {
       path: '/admin/users/add',
       page: <UsersFormPage/>
     },
+    (userDetails?.role && userDetails.role === 'admin') && {
+      path: '/admin/users/edit/:editId',
+      page: <UsersFormPage/>
+    },
     {
       path: '/admin/events',
       page: <EventsPage/>

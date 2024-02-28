@@ -109,9 +109,26 @@ export const LOGS_TABLE_HEADERS = [
     type: 'text'
   },
   {
+    rowId: 'user',
+    label: 'User',
+    type: 'text'
+  },
+  {
     rowId: 'actions',
     label: 'Actions',
     type: 'text'
+  },
+  {
+    rowId: 'created_at',
+    label: 'Created At',
+    type: 'datetime',
+    timeZone: '+03:00'
+  },
+  {
+    rowId: 'updated_at',
+    label: 'Updated At',
+    type: 'datetime',
+    timeZone: '+03:00'
   }
 ];
 

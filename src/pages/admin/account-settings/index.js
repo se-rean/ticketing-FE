@@ -18,9 +18,10 @@ import ChangePasswordForm from './change-password-form';
 
 const AccountSettingsPage = () => {
   const [isFormOpen, setIsFormOpen] = useState('');
+  const user = JSON.parse(sessionStorage.getItem('user'));
 
   const settingsMenu = [
-    {
+    user.role === 'admin' && {
       title: 'Profile',
       subTitle: 'Manage your account\'s details.',
       icon: <Person/>,
@@ -32,7 +33,7 @@ const AccountSettingsPage = () => {
       icon: <Key/>,
       onClick: () => setIsFormOpen('change-password')
     }
-  ];
+  ].filter(Boolean);
 
   return <>
     <Grid container spacing={3}>

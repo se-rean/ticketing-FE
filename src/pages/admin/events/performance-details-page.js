@@ -49,7 +49,8 @@ import {
   Card,
   IconButton,
   Tooltip,
-  Box
+  Box,
+  Chip
 } from '@mui/material';
 import {
   ExpandMore,
@@ -101,6 +102,7 @@ const PerformanceDetailsPage = () => {
   const [selectedRow, setSelectedRow] = useState(false);
   const [statusInputValue, setStatusInputValue] = useState('all-status');
   const [searchInputValue, setSearchInputValue] = useState('');
+  const [tableRows, setTableRows] = useState([]);
 
   const searchInputRef = useRef(null);
 
@@ -364,13 +366,18 @@ const PerformanceDetailsPage = () => {
 
   const searchCallBack = (value) => {
     setSearchInputValue(value);
-    dispatch(getParticipantsAction({
-      performanceCode: performanceCode,
-      page: page + 1,
-      pageSize,
-      status: getParticipantsStatusId(),
-      search: value
-    }));
+
+    let newParticipants = [...participants];
+    const searchValue = value.toLowerCase();
+    const filter = newParticipants.filter(i =>
+      i.fullName.toLowerCase().includes(searchValue)
+      || i?.nationality?.toLowerCase().includes(searchValue)
+      || i?.type?.toLowerCase().includes(searchValue)
+      || i?.area?.toLowerCase().includes(searchValue)
+      || i?.barcode?.toLowerCase().includes(searchValue)
+    );
+
+    setTableRows(filter);
 
     setTimeout(() => {
       searchInputRef.current?.focus();
@@ -391,6 +398,10 @@ const PerformanceDetailsPage = () => {
     fetchParticipants();
   }, [page, pageSize, statusInputValue]);
 
+  useEffect(() => {
+    setTableRows(participants);
+  }, [participants]);
+
   let confirmationMessage;
   switch(confirmMode) {
     case 'Delete':
@@ -408,6 +419,24 @@ const PerformanceDetailsPage = () => {
     default:
       confirmationMessage = '';
   }
+
+  const CountChip = () => {
+    return <>
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'start',
+        gap: 2
+      }}>
+        <Chip size='small' color='warning' label={`PENDING - ${pendingCount}`}/>
+
+        <Chip size='small' color='error' label={`REFUNDED - ${refundedCount}`}/>
+
+        <Chip size='small' color='success' label={`SOLD - ${soldCount}`}/>
+
+        <Chip size='small' color='error' label={`FAILED - ${failedCount}`}/>
+      </Box>
+    </>;
+  };
 
   return <>
     <Grid container spacing={4}>
@@ -660,7 +689,15 @@ const PerformanceDetailsPage = () => {
                 <Grid item xs={12}>
                   <Typography color='primary'>
                     {!isAddFormOpen && !isEditFormOpen && (
-                      <strong>{`Paticipants (${getParticipantsCount()})`}</strong>
+                      <>
+                        <Box sx={{ mb: 2 }}>
+                          <Typography color='primary'>
+                            <strong>Participants</strong>
+                          </Typography>
+                        </Box>
+
+                        <CountChip/>
+                      </>
                     )}
 
                     {isAddFormOpen && (
@@ -678,7 +715,7 @@ const PerformanceDetailsPage = () => {
                     <Table {...{
                       loading: participantsLoading,
                       headers: TICKETING_TABLE_HEADERS,
-                      rows: participants,
+                      rows: tableRows,
                       totalTableRows,
                       headerActions: (
                         <>

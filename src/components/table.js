@@ -1,4 +1,9 @@
-import React, { Fragment } from 'react';
+/* eslint-disable no-unused-vars */
+import React, {
+  useState,
+  useEffect,
+  Fragment
+} from 'react';
 import {
   useDispatch,
   useSelector
@@ -7,7 +12,14 @@ import { createSelector } from 'reselect';
 import Barcode from 'react-barcode';
 import { dateTime } from '../utils/date-formats';
 import { useNavigate } from 'react-router-dom';
+import {
+  setTablePageAction,
+  setTablePageSizeAction,
+  setTableSelectedIdsAction
+} from '../redux-saga/actions';
 
+import { Info } from '@mui/icons-material';
+import { visuallyHidden } from '@mui/utils';
 import {
   Table as MUITable,
   TableContainer,
@@ -20,17 +32,13 @@ import {
   Box,
   Paper,
   Tooltip,
-  Typography
+  Typography,
+  TableSortLabel
 } from '@mui/material';
-import {
-  setTablePageAction,
-  setTablePageSizeAction,
-  setTableSelectedIdsAction
-} from '../redux-saga/actions';
 import Loading from './loading';
 import EmptyBanner from './empty-banner';
 import StatusChip from './status-chip';
-import { Info } from '@mui/icons-material';
+import { isEmpty } from 'lodash';
 
 const stateSelectors = createSelector(
   state => state.table,
@@ -47,8 +55,15 @@ const RenderTableHead = ({
   hasSelectMultiple,
   onSelectAllClick,
   numSelected,
-  rowCount
+  rowCount,
+  onRequestSort,
+  order,
+  orderBy
 }) => {
+  const createSortHandler = (property) => (event) => {
+    onRequestSort(event, property);
+  };
+
   return <>
     <TableHead>
       <TableRow>
@@ -67,14 +82,23 @@ const RenderTableHead = ({
 
         {headers.map((header, index) => (
           <Fragment key={index}>
-            {header.rowId !== 'id' && (
-              <TableCell
-                key={header.id}
-                align='left'
+            <TableCell
+              key={header.rowId}
+              align='left'
+            >
+              <TableSortLabel
+                active={orderBy === header.rowId}
+                direction={orderBy === header.rowId ? order : 'asc'}
+                onClick={createSortHandler(header.rowId)}
               >
                 {header.label}
-              </TableCell>
-            )}
+                {orderBy === header.rowId ? (
+                  <Box component="span" sx={visuallyHidden}>
+                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                  </Box>
+                ) : null}
+              </TableSortLabel>
+            </TableCell>
           </Fragment>
         ))}
       </TableRow>
@@ -94,7 +118,12 @@ const RenderRows = ({ row, header, rowActions, navigate }) => {
     }
     return '--';
   } else if (header.type === 'datetime') {
-    return dateTime(row[header.rowId]);
+    if (header.timeZone) {
+      return dateTime(row[header.rowId], header.timeZone);
+    } else {
+      return dateTime(row[header.rowId]);
+    }
+
   } else if (header.type === 'status') {
     if (row[header.rowId].toUpperCase() === 'FAILED') {
       const color = row.generate_barcode_api_respose != 'OK' ? 'red' : 'white';
@@ -145,6 +174,10 @@ const Table = ({
   rowActions = null,
   loading = false
 }) => {
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState(null);
+  const [visibleRows, setVisibleRows] = useState([]);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -163,6 +196,40 @@ const Table = ({
     page,
     pageSize
   } = useSelector(stateSelectors);
+
+  const descendingComparator = (a, b, orderBy) => {
+    if (b[orderBy] < a[orderBy]) {
+      return -1;
+    }
+    if (b[orderBy] > a[orderBy]) {
+      return 1;
+    }
+    return 0;
+  };
+
+  const getComparator = (order, orderBy) => {
+    return order === 'desc'
+      ? (a, b) => descendingComparator(a, b, orderBy)
+      : (a, b) => -descendingComparator(a, b, orderBy);
+  };
+
+  const stableSort = (array, comparator) => {
+    const stabilizedThis = array.map((el, index) => [el, index]);
+    stabilizedThis.sort((a, b) => {
+      const order = comparator(a[0], b[0]);
+      if (order !== 0) {
+        return order;
+      }
+      return a[1] - b[1];
+    });
+    return stabilizedThis.map((el) => el[0]);
+  };
+
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
@@ -206,6 +273,22 @@ const Table = ({
 
   const isSelected = (id) => selectedIds.indexOf(id) !== -1;
 
+  useEffect(() => {
+    setOrderBy(headers[0].rowId);
+  }, []);
+
+  useEffect(() => {
+    if (!isEmpty(orderBy)) {
+      setVisibleRows(
+        stableSort(rows, getComparator(order, orderBy)).slice(
+          page * pageSize,
+          page * pageSize + pageSize
+        ),
+        [order, orderBy, page, pageSize]
+      );
+    }
+  }, [rows, page, pageSize, order, orderBy]);
+
   return <>
     <Paper sx={{ p: 1 }}>
       {!loading
@@ -227,7 +310,7 @@ const Table = ({
               </Box>
             )}
 
-            <TableContainer sx={{ height: rows.length === 0 ? '' : 420 }}>
+            <TableContainer sx={{ height: visibleRows.length === 0 ? '' : 420 }}>
               <MUITable
                 id={id}
                 size='small'
@@ -239,12 +322,15 @@ const Table = ({
                   headerActions,
                   onSelectAllClick: handleSelectAllClick,
                   numSelected: selectedIds.length,
-                  rowCount: rows.length,
-                  hasSelectMultiple
+                  rowCount: visibleRows.length,
+                  hasSelectMultiple,
+                  order,
+                  orderBy,
+                  onRequestSort: handleRequestSort
                 }}/>
 
                 <TableBody>
-                  {rows.map((row, index) => (
+                  {visibleRows.map((row, index) => (
                     <Fragment key={index}>
                       <TableRow
                         hover={headerActions && hasSelectMultiple}
@@ -287,7 +373,7 @@ const Table = ({
               </MUITable>
             </TableContainer>
 
-            {rows.length === 0 && (
+            {visibleRows.length === 0 && (
               <Box sx={{ height: 420 }}>
                 <EmptyBanner/>
               </Box>
@@ -296,7 +382,7 @@ const Table = ({
             <TablePagination
               rowsPerPageOptions={[10, 100, 500, 1000, 2000, 3000]}
               component="div"
-              count={totalTableRows || rows.length}
+              count={totalTableRows || visibleRows.length}
               rowsPerPage={pageSize}
               page={page}
               onPageChange={handleChangePage}

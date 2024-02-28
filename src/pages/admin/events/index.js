@@ -11,21 +11,26 @@ import {
 import { createSelector } from 'reselect';
 import {
   getEventsAction,
-  setEventsAction,
   setTableSelectedIdsAction,
   updateEventsAction
 } from '../../../redux-saga/actions';
 import { TICKETING_EVENTS_TABLE_HEADERS } from '../../../utils/constants';
 import { useNavigate } from 'react-router-dom';
 import {
-  debounce, isEmpty
+  debounce,
+  isEmpty
 } from 'lodash';
 
 import {
-  Add, CheckCircleOutline, DoDisturb, Launch
+  Add,
+  CheckCircleOutline,
+  DoDisturb,
+  Launch
 } from '@mui/icons-material';
 import {
-  Box, IconButton, Tooltip
+  Box,
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import Button from '../../../components/button';
 import Table from '../../../components/table';
@@ -45,7 +50,7 @@ const EventsPage = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmMode, setConfirmMode] = useState(false);
   const [selectedRow, setSelectedRow] = useState(false);
-  const [tableRow, setTableRow] = useState([]);
+  const [tableRows, setTableRows] = useState([]);
   const searchInputRef = useRef(null);
 
   const dispatch = useDispatch();
@@ -67,7 +72,7 @@ const EventsPage = () => {
       || i.status.toLowerCase().includes(searchValue)
     );
 
-    setTableRow(filter);
+    setTableRows(filter);
 
     setTimeout(() => {
       searchInputRef.current?.focus();
@@ -126,9 +131,7 @@ const EventsPage = () => {
   }, []);
 
   useEffect(() => {
-    if (!isEmpty(events)) {
-      setTableRow(events);
-    }
+    setTableRows(events);
   }, [events]);
 
   return <>
@@ -187,7 +190,7 @@ const EventsPage = () => {
             </Box>
           </>
         ),
-        rows: tableRow,
+        rows: tableRows,
         hasSelectMultiple: false
       }}/>
 

@@ -24,7 +24,8 @@ import {
   UPDATE_USERS,
   CREATE_USERS,
   DELETE_USERS,
-  GET_LOGS
+  GET_LOGS,
+  GET_USER
 } from '../action-types';
 
 import {
@@ -32,6 +33,7 @@ import {
   setLogsAction,
   setParticipantsDataAction,
   setPerformanceDetailsAction,
+  setUserAction,
   setUsersAction
 } from '../actions';
 import {
@@ -85,15 +87,9 @@ function* watchGetParticipantsSuccess() {
         }
       };
 
-      let filterData;
-      if (!isEmpty(getParticipantsStatus())) {
-        filterData = mappedData
-          .filter(i => i.status.includes(getParticipantsStatus())
-            && i.fullName.toLowerCase().includes(searchValue.toLowerCase()));
-      } else {
-        filterData = mappedData
-          .filter(i => i.fullName.toLowerCase().includes(searchValue.toLowerCase()));
-      }
+      const filterData = !isEmpty(getParticipantsStatus())
+        ? mappedData.filter(i => i.status.includes(getParticipantsStatus()))
+        : mappedData;
 
       yield put(setParticipantsDataAction(filterData));
     }
@@ -122,6 +118,31 @@ function* watchGetEventsSuccess() {
 
     if (isSuccess) {
       yield put(setEventsAction(data));
+    }
+  });
+}
+
+function* watchUpdateEventsSuccess() {
+  yield takeEvery(appendSuccess(UPDATE_EVENTS), function* fn({ payload: { data: response } }) {
+    const {
+      is_success: isSuccess,
+      data
+    } = response;
+
+    const state = yield select(state => state.ticket);
+    const { events } = state;
+
+    const newEvents = [...events];
+    const newObj = data[0];
+    const index = newEvents.findIndex(item => item.id === newObj.id);
+
+    if (index !== -1) {
+      newEvents[index] = newObj;
+      yield put(setEventsAction(newEvents));
+    }
+
+    if (isSuccess) {
+      toastSuccess('Updated successfully.');
     }
   });
 }
@@ -195,35 +216,37 @@ function* watchGetUsersSuccess() {
       const user = JSON.parse(sessionStorage.getItem('user'));
 
       const mappedData = data.map(i => ({
-        ...i, fullName: `${i.fname} ${i.mname} ${i.lname}`
-      })).filter(i => i.id !== user.id && i.fullName.toLowerCase().includes(searchValue.toLowerCase()));
+        ...i,
+        fullName: `${i.fname} ${i.mname} ${i.lname}`
+      })).filter(i => i.id !== user.id);
 
       yield put(setUsersAction(mappedData));
     }
   });
 }
 
-function* updateEventsSuccess() {
-  yield takeEvery(appendSuccess(UPDATE_EVENTS), function* fn({ payload: { data: response } }) {
+function* watchGetUserSuccess() {
+  yield takeEvery(appendSuccess(GET_USER), function* fn({ payload: { data: response } }) {
     const {
-      is_success: isSuccess,
-      data
+      data,
+      is_success: isSuccess
     } = response;
 
-    const state = yield select(state => state.ticket);
-    const { events } = state;
-
-    const newEvents = [...events];
-    const newObj = data[0];
-    const index = newEvents.findIndex(item => item.id === newObj.id);
-
-    if (index !== -1) {
-      newEvents[index] = newObj;
-      yield put(setEventsAction(newEvents));
+    if (isSuccess) {
+      yield put(setUserAction(data[0]));
     }
+  });
+}
+
+function* watchCreateUserSuccess() {
+  yield takeEvery(appendSuccess(CREATE_USERS), function* fn({ payload: { data: response } }) {
+    const {
+      errors,
+      is_success: isSuccess
+    } = response;
 
     if (isSuccess) {
-      toastSuccess('Updated successfully.');
+      toastSuccess('Created, Successfully!');
     }
   });
 }
@@ -249,49 +272,48 @@ function* watchUpdateUserSuccess() {
   });
 }
 
-function* watchCreateUserSuccess() {
-  yield takeEvery(appendSuccess(CREATE_USERS), function* fn({ payload: { data: response } }) {
-    const {
-      errors,
-      is_success: isSuccess
-    } = response;
-
-    if (isSuccess) {
-      toastSuccess('Created, Successfully!');
-      window.location.href = '/admin/users';
-    }
-  });
-}
-
 function* watchDeleteUserSuccess() {
-  yield takeEvery(appendSuccess(DELETE_USERS), function* fn({ payload: { data: response } }) {
+  yield takeEvery(appendSuccess(DELETE_USERS), function* fn({ payload, payload: { data: response, config } }) {
     const {
       errors,
       is_success: isSuccess
     } = response;
 
     if (isSuccess) {
+      const { reduxSourceAction: { payload: { request: { data: { id: idToDelete } } } } } = config;
+
+      const state = yield select(state => state.users);
+      const { data: usersData } = state;
+
+      const newUsersData = [...usersData];
+      const indexToDelete = newUsersData.findIndex(i => i.id === idToDelete);
+
+      if (indexToDelete !== -1) {
+        newUsersData.splice(indexToDelete, 1);
+      }
+
+      yield put(setUsersAction(newUsersData));
+
       toastSuccess('Deleted, Successfully!');
     }
   });
 }
 
 function* watchGetLogsSuccess() {
-  yield takeEvery([ appendSuccess(GET_LOGS) ], function* fn({ payload: { data: response, config: { search: searchValue, type: typeValue } } }) {
+  yield takeEvery([ appendSuccess(GET_LOGS) ], function* fn({ payload: { data: response, config: { type: typeValue } } }) {
     const { is_success: isSuccess, data: { rows: data } } = response;
 
     if (isSuccess) {
-      let filterData;
+      const mappedData = data.map(i => ({
+        ...i,
+        user: `${i.user_data.fname} ${i.user_data.mname} ${i.user_data.lname}`
+      }));
+
       const tempTypeValue = typeValue.includes('All Actions') ? '' : typeValue;
 
-      if (!isEmpty(tempTypeValue)) {
-        filterData = data
-          .filter(i => i.type.includes(tempTypeValue)
-            && i.type.toLowerCase().includes(searchValue.toLowerCase()));
-      } else {
-        filterData = data
-          .filter(i => i.type.toLowerCase().includes(searchValue.toLowerCase()));
-      }
+      const filterData = !isEmpty(tempTypeValue)
+        ? mappedData.filter(i => i.type.includes(tempTypeValue))
+        : mappedData;
 
       yield put(setLogsAction(filterData));
     }
@@ -308,7 +330,8 @@ export default function* rootSaga() {
     watchDeleteParticipantsSuccess(),
     watchUpdateParticipantsSuccess(),
     watchGetUsersSuccess(),
-    updateEventsSuccess(),
+    watchGetUserSuccess(),
+    watchUpdateEventsSuccess(),
     watchGetPerformanceDetailsSuccess(),
     watchGetEventsSuccess(),
     watchRefundParticipantsSuccess(),

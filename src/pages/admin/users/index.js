@@ -12,18 +12,24 @@ import {
 import { createSelector } from 'reselect';
 import {
   deleteUsersAction,
-  getUsersAction, setTableSelectedIdsAction
+  getUsersAction,
+  setTableSelectedIdsAction
 } from '../../../redux-saga/actions';
 import { USERS_TABLE_HEADERS } from '../../../utils/constants';
 import {
-  debounce, isEmpty
+  debounce,
+  isEmpty
 } from 'lodash';
 
 import {
-  Add, Delete, Edit
+  Add,
+  Delete,
+  Edit
 } from '@mui/icons-material';
 import {
-  Box, IconButton, Tooltip
+  Box,
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import Button from '../../../components/button';
 import Table from '../../../components/table';
@@ -44,6 +50,7 @@ const UsersPage = () => {
   const [searchInputValue, setSearchInputValue] = useState('');
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmMode, setConfirmMode] = useState(false);
+  const [tableRows, setTableRows] = useState([]);
   const searchInputRef = useRef(null);
 
   const dispatch = useDispatch();
@@ -57,7 +64,16 @@ const UsersPage = () => {
 
   const searchCallBack = (value) => {
     setSearchInputValue(value);
-    dispatch(getUsersAction({ search: value }));
+
+    let newUsers = [...users];
+    const searchValue = value.toLowerCase();
+    const filter = newUsers.filter(i =>
+      i.fullName.toLowerCase().includes(searchValue)
+      || i.username.toLowerCase().includes(searchValue)
+      || i.email.toLowerCase().includes(searchValue)
+    );
+
+    setTableRows(filter);
 
     setTimeout(() => {
       searchInputRef.current?.focus();
@@ -83,17 +99,23 @@ const UsersPage = () => {
   const handleYes = () => {
     if (confirmMode === 'Delete') {
       const payload = { id: selectedTableIds[0] };
-      dispatch(deleteUsersAction(payload)).then(() => {
-        dispatch(getUsersAction());
-      });
+      dispatch(deleteUsersAction(payload));
     }
 
     setIsConfirmOpen(!isConfirmOpen);
   };
 
+  const handleEdit = (e, row) => {
+    navigate(`/admin/users/edit/${row.id}`);
+  };
+
   useEffect(() => {
     dispatch(getUsersAction());
   }, []);
+
+  useEffect(() => {
+    setTableRows(users);
+  }, [users]);
 
   return <>
     <Box sx={{ mb: 2 }} align='right'>
@@ -106,7 +128,7 @@ const UsersPage = () => {
 
     <Box>
       <Table {...{
-        rows: users,
+        rows: tableRows,
         headers: USERS_TABLE_HEADERS,
         loading,
         headerActions: (
@@ -132,6 +154,12 @@ const UsersPage = () => {
                 gap: 2
               }}
             >
+              <Tooltip title='Edit'>
+                <IconButton color='info' onClick={(e) => handleEdit(e, row)}>
+                  <Edit/>
+                </IconButton>
+              </Tooltip>
+
               <Tooltip title='Cancel'>
                 <IconButton color='error' onClick={(e) => handleConfirm(e, 'Delete', row)}>
                   <Delete/>

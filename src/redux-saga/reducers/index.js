@@ -26,7 +26,8 @@ import {
   UPDATE_USERS,
   CREATE_USERS,
   GET_LOGS,
-  SET_LOGS
+  SET_LOGS,
+  SET_USER
 } from '../action-types';
 
 const login = (state = {
@@ -270,7 +271,8 @@ const users = (state = {
   loading: false,
   isSuccess: null,
   errors: null,
-  data: []
+  data: [],
+  user: null
 }, action) => {
   switch(action.type) {
     case appendRequest(GET_USERS):
@@ -295,6 +297,11 @@ const users = (state = {
       return {
         ...state,
         data: action.payload
+      };
+    case SET_USER:
+      return {
+        ...state,
+        user: action.payload
       };
     case appendSuccess(UPDATE_USERS):
       return {
