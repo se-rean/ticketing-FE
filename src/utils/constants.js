@@ -109,8 +109,8 @@ export const LOGS_TABLE_HEADERS = [
     type: 'text'
   },
   {
-    rowId: 'user',
-    label: 'User',
+    rowId: 'username',
+    label: 'Username',
     type: 'text'
   },
   {

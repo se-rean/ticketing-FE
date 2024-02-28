@@ -306,7 +306,8 @@ function* watchGetLogsSuccess() {
     if (isSuccess) {
       const mappedData = data.map(i => ({
         ...i,
-        user: `${i.user_data.fname} ${i.user_data.mname} ${i.user_data.lname}`
+        user: `${i.user_data.fname} ${i.user_data.mname} ${i.user_data.lname}`,
+        username: i.user_data.username
       }));
 
       const tempTypeValue = typeValue.includes('All Actions') ? '' : typeValue;
