@@ -1,3 +1,5 @@
+const TIMEZONE = '+04:00';
+
 export const TICKETING_TABLE_HEADERS = [
   {
     rowId: 'fullName',
@@ -122,13 +124,13 @@ export const LOGS_TABLE_HEADERS = [
     rowId: 'created_at',
     label: 'Created At',
     type: 'datetime',
-    timeZone: '+03:00'
+    timeZone: TIMEZONE
   },
   {
     rowId: 'updated_at',
     label: 'Updated At',
     type: 'datetime',
-    timeZone: '+03:00'
+    timeZone: TIMEZONE
   }
 ];
 
