@@ -191,7 +191,7 @@ const UsersFormPage = () => {
             />
           </Grid>
 
-          {!editId && (
+          {editId && (
             <>
               <Grid item xs={12}>
                 <Typography color='primary' variant='h6'>
@@ -203,8 +203,10 @@ const UsersFormPage = () => {
                 <InputPassword
                   name='password'
                   label='Password'
-                  {...register('password', { required: 'Password field is required.' })}
-                  error={fieldErrors.password}
+                  {...register('password'
+                    // { required: 'Password field is required.'}
+                  )}
+                  // error={fieldErrors.password}
                   disabled={loading}
                 />
               </Grid>
@@ -214,10 +216,10 @@ const UsersFormPage = () => {
                   name='confirmPassword'
                   label='Confirm Password'
                   {...register('confirmPassword', {
-                    required: 'Confirm password field is required.',
+                    // required: 'Confirm password field is required.',
                     validate: vaidateConfirmPassword
                   })}
-                  error={fieldErrors.confirmPassword}
+                  // error={fieldErrors.confirmPassword}
                   disabled={loading}
                 />
               </Grid>
