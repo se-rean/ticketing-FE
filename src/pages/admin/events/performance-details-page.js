@@ -424,7 +424,9 @@ const PerformanceDetailsPage = () => {
     return <>
       <Box sx={{
         display: 'flex',
+        width: '50%',
         justifyContent: 'start',
+        alignItems: 'center',
         gap: 2
       }}>
         <Chip size='small' color='warning' label={`PENDING - ${pendingCount}`}/>
@@ -695,8 +697,6 @@ const PerformanceDetailsPage = () => {
                             <strong>Participants</strong>
                           </Typography>
                         </Box>
-
-                        <CountChip/>
                       </>
                     )}
 
@@ -719,6 +719,7 @@ const PerformanceDetailsPage = () => {
                       totalTableRows,
                       headerActions: (
                         <>
+                          <CountChip/>
                           <Box>
                             {performanceDetails.status == 'Pending For Barcode Generation' && (
                               <>
