@@ -148,7 +148,9 @@ const UsersFormPage = () => {
             <Input
               name='mname'
               label='Middle Name (Optional)'
-              {...register('mname', { required: 'Middle name field is required.' })}
+              {...register('mname'
+              // { required: 'Middle name field is required.' }
+              )}
               error={fieldErrors.mname}
               disabled={loading}
             />
