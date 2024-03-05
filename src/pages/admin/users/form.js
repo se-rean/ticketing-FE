@@ -191,40 +191,39 @@ const UsersFormPage = () => {
             />
           </Grid>
 
-          {editId && (
-            <>
-              <Grid item xs={12}>
-                <Typography color='primary' variant='h6'>
-                  <strong>Setup Password</strong>
-                </Typography>
-              </Grid>
 
-              <Grid item xs={12} md={12} lg={4} xl={4}>
-                <InputPassword
-                  name='password'
-                  label='Password'
-                  {...register('password'
-                    // { required: 'Password field is required.'}
-                  )}
-                  // error={fieldErrors.password}
-                  disabled={loading}
-                />
-              </Grid>
+          <Grid item xs={12}>
+            <Typography color='primary' variant='h6'>
+              <strong>Setup Password</strong>
+            </Typography>
+          </Grid>
 
-              <Grid item xs={12} md={12} lg={4} xl={4}>
-                <InputPassword
-                  name='confirmPassword'
-                  label='Confirm Password'
-                  {...register('confirmPassword', {
-                    // required: 'Confirm password field is required.',
-                    validate: vaidateConfirmPassword
-                  })}
-                  // error={fieldErrors.confirmPassword}
-                  disabled={loading}
-                />
-              </Grid>
-            </>
-          )}
+          <Grid item xs={12} md={12} lg={4} xl={4}>
+            <InputPassword
+              name='password'
+              label='Password'
+              {...register('password'
+                // { required: 'Password field is required.'}
+              )}
+              // error={fieldErrors.password}
+              disabled={loading}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={12} lg={4} xl={4}>
+            <InputPassword
+              name='confirmPassword'
+              label='Confirm Password'
+              {...register('confirmPassword', {
+                // required: 'Confirm password field is required.',
+                validate: vaidateConfirmPassword
+              })}
+              // error={fieldErrors.confirmPassword}
+              disabled={loading}
+            />
+          </Grid>
+
+
 
           <Grid item xs={12}>
             <Box
