@@ -627,7 +627,7 @@ const PerformanceDetailsPage = () => {
 
                                   <Grid item xs={6} md={6} lg={6} xl={6}>
                                     <Typography variant='subtitle2'>
-                                      {i.amount}
+                                      {(i.amount / 100).toFixed(2)}
                                     </Typography>
                                   </Grid>
 
